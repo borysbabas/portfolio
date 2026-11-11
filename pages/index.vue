@@ -358,7 +358,7 @@ const educations = [
       "Advisory report on the dark and light sides of AI profiling, with advice on AI literacy",
     ],
     link: {
-      href: "https://github.com/Raadfxrd/ParallaxAI",
+      href: "https://github.com/borysbabas/ParallaxAI",
       label: "View ParallaxAI on GitHub",
     },
   },

@@ -155,7 +155,7 @@
             <!-- GitHub -->
             <a
                 class="bg-background-light border-border-light hover:border-button-primary group flex min-w-[110px] flex-col items-center gap-3 rounded-lg border p-5 shadow-sm transition-all duration-200 hover:shadow-md md:min-w-[120px] md:p-6"
-                href="https://github.com/raadfxrd"
+                href="https://github.com/borysbabas"
                 rel="noopener noreferrer"
                 target="_blank"
             >

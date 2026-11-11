@@ -72,7 +72,7 @@ const legalPages = routes
 const externalLinks = [
   {
     name: "GitHub",
-    url: "https://github.com/raadfxrd",
+    url: "https://github.com/borysbabas",
     description: "View my code repositories",
   },
   {

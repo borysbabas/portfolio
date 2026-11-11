@@ -1,6 +1,6 @@
 # GitHub Token Setup Guide
 
-The projects page at `/projects` lists public repositories for the `raadfxrd` GitHub account, along with a
+The projects page at `/projects` lists public repositories for the `borysbabas` GitHub account, along with a
 thumbnail, title and description extracted from each repository's README.
 
 Configuring a token is **optional but strongly recommended**. Without one the site still works, but it shares
@@ -78,7 +78,7 @@ GET /api/github/repos
 That handler — [`server/api/github/repos.get.ts`](../server/api/github/repos.get.ts) — does the following on
 the server:
 
-1. Fetches the repository list (`/users/raadfxrd/repos?sort=updated&per_page=20`) and drops forks.
+1. Fetches the repository list (`/users/borysbabas/repos?sort=updated&per_page=20`) and drops forks.
 2. Fetches each repository's README.
 3. Derives a plain-text title and description from the README, and resolves the first image to an absolute
    URL (trying the default branch, then `main`/`master` as a fallback).

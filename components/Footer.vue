@@ -20,7 +20,7 @@
           <div class="flex items-center space-x-4 md:space-x-6">
             <a
                 class="group block transform transition-all duration-200 ease-out hover:scale-110"
-                href="https://github.com/raadfxrd"
+                href="https://github.com/borysbabas"
                 target="_blank"
             >
               <i

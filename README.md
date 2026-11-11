@@ -250,7 +250,7 @@ portfolio/
 ### GitHub Projects Integration
 
 The projects page reads from `/api/github/repos`, a cached server-side proxy that fetches repositories from
-GitHub (`raadfxrd`) and extracts README content. The GitHub token stays on the server. For each repository it
+GitHub (`borysbabas`) and extracts README content. The GitHub token stays on the server. For each repository it
 displays:
 
 - First image from README as thumbnail

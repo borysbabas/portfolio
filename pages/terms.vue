@@ -250,10 +250,10 @@ useSeoMeta({
                 <strong>GitHub: </strong>
                 <a
                   class="social-link underline"
-                  href="https://github.com/raadfxrd"
+                  href="https://github.com/borysbabas"
                   rel="noopener noreferrer"
                   target="_blank"
-                  >@raadfxrd</a
+                  >@borysbabas</a
                 >
               </p>
             </div>

@@ -48,11 +48,11 @@ const error = computed(() =>
 
 // The pinned profile repo is presented separately from the grid.
 const featuredRepo = computed<PublicRepo | null>(
-  () => data.value?.find((repo) => repo.name === "raadfxrd") ?? null,
+  () => data.value?.find((repo) => repo.name === "borysbabas") ?? null,
 );
 
 const repos = computed<PublicRepo[]>(() =>
-  (data.value ?? []).filter((repo) => repo.name !== "raadfxrd"),
+  (data.value ?? []).filter((repo) => repo.name !== "borysbabas"),
 );
 
 onMounted(() => {

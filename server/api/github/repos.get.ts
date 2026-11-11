@@ -1,6 +1,6 @@
 import { marked } from "marked";
 
-const GITHUB_USER = "raadfxrd";
+const GITHUB_USER = "borysbabas";
 const GITHUB_API = "https://api.github.com";
 
 export interface PublicRepo {
