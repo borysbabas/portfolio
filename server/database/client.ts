@@ -30,6 +30,25 @@ function getDatabaseUrl(): string {
     );
 }
 
+// Supabase refuses unencrypted connections (ESSLREQUIRED), so require TLS for
+// any remote host. A local Postgres usually has no TLS, so leave it off there.
+// An explicit ?sslmode= / ?ssl= in the connection string is left in charge:
+// postgres.js lets an `ssl` option override it, so only set one when it's absent.
+function sslOptions(connectionString: string): { ssl?: "require" } {
+    try {
+        const url = new URL(connectionString);
+        if (url.searchParams.has("sslmode") || url.searchParams.has("ssl")) {
+            return {};
+        }
+        if (["localhost", "127.0.0.1", "::1", "[::1]"].includes(url.hostname)) {
+            return {};
+        }
+    } catch {
+        // Not a parseable URL; fall through to the safe default.
+    }
+    return { ssl: "require" };
+}
+
 // Initialize database connection (lazy)
 function initializeDatabase() {
     if (_db) {
@@ -48,6 +67,7 @@ function initializeDatabase() {
         max: 10,
         idle_timeout: 20,
         connect_timeout: 10,
+        ...sslOptions(connectionString),
     });
 
     // Create Drizzle ORM instance with the postgres connection
