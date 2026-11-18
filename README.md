@@ -1,18 +1,24 @@
 # borysbabas.dev
 
-The source of [borysbabas.dev](https://borysbabas.dev): a one-page portfolio built with **Nuxt 4**, **Vue 3** and
-**Tailwind CSS 4**, deployed on Vercel.
+![borysbabas.dev](docs/thumbnail.png)
 
-## What's on it
+The source of [borysbabas.dev](https://borysbabas.dev): my one-page portfolio, in English, Dutch and Polish. The
+project list is built from my public GitHub repositories, so a new repo with a good README shows up on its own. There
+is also Stash, a private page that turns pasted links into cards.
 
-- **Selected work**, loaded from my public GitHub repositories. Each card uses the repo's description and topics,
-  and the first image in its README as the thumbnail. See [docs/GITHUB_TOKEN_SETUP.md](docs/GITHUB_TOKEN_SETUP.md).
-- About, interests, experience and education, and contact.
-- Privacy and terms pages.
-- **Stash**, a private page at `/stash` (double-click the `.dev` in the footer). Paste a link and Claude reads it into a
-  card: a recipe, a product, an article.
+## Stack
 
-## Setup
+| | |
+|---|---|
+| Framework | Nuxt 4, Vue 3, TypeScript |
+| Styling | Tailwind CSS 4 via `@tailwindcss/vite`, mapped onto the site's own design tokens |
+| Languages | `@nuxtjs/i18n` for the routes (`/`, `/nl`, `/pl`); the text itself lives in `content/` |
+| Theme | `@nuxtjs/color-mode`, light and dark |
+| Data | GitHub REST API for the projects, Supabase for Stash |
+| AI | Anthropic SDK: Claude reads Stash links into cards |
+| Hosting | Vercel, with Analytics and Speed Insights |
+
+## Getting started
 
 ```bash
 npm install
@@ -20,30 +26,48 @@ cp .env.example .env   # optional: add a GITHUB_TOKEN to raise the GitHub rate l
 npm run dev            # http://localhost:3000
 ```
 
-## Production
-
 ```bash
 npm run build
 npm run preview
 ```
 
-The home page is cached for an hour on Vercel (`isr` in `nuxt.config.ts`), so the project list refreshes at most
-hourly.
+## Selected work
+
+`server/api/github/repos.get.ts` fetches my non-fork repositories once and caches the result for an hour; each home
+page is also cached for an hour on Vercel (`isr` in `nuxt.config.ts`). For every repo the card uses:
+
+| Card | Comes from |
+|---|---|
+| Title | The README's first heading |
+| Text | The repo description, minus a leading `Name:` and a trailing `HvA school project.` |
+| Label | `school-project` → School, `client-website` → Client, otherwise Personal |
+| Tags | The first four other topics |
+| Image | The README's first markdown image, resolved to `raw.githubusercontent.com` |
+| Links | The repo, and its homepage when one is set |
+
+Cards with an image come first. The profile README and this repo are hidden. A token is optional; see
+[docs/GITHUB_TOKEN_SETUP.md](docs/GITHUB_TOKEN_SETUP.md).
 
 ## Stash
+
+A private page at `/stash` (double-click the `.dev` in the footer). Paste a link and Claude reads it into a card: a
+recipe, a product, an article.
 
 - Settings are environment variables; see the Stash section of `.env.example`.
 - Cards live in Supabase, in the tables from `supabase/stash.sql`.
 - Five wrong passwords in 15 minutes lock sign-in for 15 minutes, and email you when it happens.
 
-## Structure
+## Project structure
 
-```
-pages/index.vue                 the one-page home
-pages/privacy.vue, terms.vue    legal pages, on layouts/default.vue
-components/                     SiteNav, SiteFooter, SiteCursor, shared by every page
-assets/css/site.css             the design: tokens, layout and motion
-assets/css/main.css             Tailwind, mapped onto the design's tokens
-server/api/github/repos.get.ts  the cached GitHub project list
-pages/stash/, server/api/stash/ the private stash
-```
+| Path | |
+|---|---|
+| `pages/index.vue` | The one-page home |
+| `pages/privacy.vue`, `pages/terms.vue` | Legal pages, on `layouts/default.vue` |
+| `pages/stash/` | The private stash and a page per card |
+| `components/` | `SiteNav`, `SiteFooter`, `SiteCursor`, `LegalPage` and the stash's cooking mode |
+| `content/` | All site and legal text, per language; read through `composables/useText.ts` |
+| `assets/css/site.css` | The design: tokens, layout and motion |
+| `assets/css/main.css` | Tailwind, mapped onto the design's tokens |
+| `server/api/github/repos.get.ts` | The cached GitHub project list |
+| `server/api/stash/`, `server/utils/` | Stash sign-in and cards |
+| `supabase/stash.sql` | Tables for Stash |
