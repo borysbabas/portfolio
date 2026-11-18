@@ -4,6 +4,6 @@ export default defineEventHandler(async (event) => {
     await requireStash(event);
     const lang = stashLang(getQuery(event).lang);
     const items = await stashDb<StashItem[]>("stash_items", { query: { select: "*", order: "created_at.desc" } });
-    // Cards not yet translated into this language are translated now, side by side, and stored for next time
-    return Promise.all(items.map((item) => localizeItem(item, lang)));
+    // Stored translations only, so the page loads right away; it asks for missing ones card by card
+    return Promise.all(items.map((item) => localizeItem(item, lang, false)));
 });

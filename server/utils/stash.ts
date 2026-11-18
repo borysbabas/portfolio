@@ -21,6 +21,8 @@ export interface StashItem {
     };
     tags: string[];
     created_at: string;
+    // Only on responses: the card has no stored translation in the requested language yet, so it's in English
+    untranslated?: boolean;
 }
 
 /** A card's text in another language, in the same order and lengths as the English it came from. */

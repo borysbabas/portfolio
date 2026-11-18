@@ -80,11 +80,15 @@ async function translateCard(item: StashItem, lang: "nl" | "pl"): Promise<StashT
     return out;
 }
 
-/** The card in `lang`, translating and storing it the first time it's asked for. English if translating fails. */
-export async function localizeItem(item: StashItem, lang: StashLang): Promise<StashItem> {
+/**
+ * The card in `lang`. Without a stored translation it comes back in English and marked untranslated,
+ * unless `translate` is set: then Claude translates it and the translation is stored for next time.
+ */
+export async function localizeItem(item: StashItem, lang: StashLang, translate: boolean): Promise<StashItem> {
     if (lang === "en") return item;
     let t = item.details.translations?.[lang];
     if (!t) {
+        if (!translate) return { ...item, untranslated: true };
         try {
             t = await translateCard(item, lang);
             // shortcut: two languages translated at the same moment can overwrite each other's stored copy; it's redone on the next view
@@ -92,7 +96,7 @@ export async function localizeItem(item: StashItem, lang: StashLang): Promise<St
             await stashDb("stash_items", { method: "PATCH", query: { id: `eq.${item.id}` }, body: { details } });
         } catch (error) {
             console.error(`stash: translating ${item.id} to ${lang} failed`, error);
-            return item;
+            return { ...item, untranslated: true };
         }
     }
     const sections = item.details.sections ?? [];
