@@ -272,12 +272,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-o
 .links { display: flex; gap: 0.25rem; flex-wrap: wrap; list-style: none; margin: 0; padding: 0; }
 .links a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 0.75rem; text-decoration: none; color: var(--muted); }
 .links a:hover { color: var(--ink); }
-.closing footer { padding: 2rem 0 2.5rem; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.closing footer { padding: 2rem 0 2.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
 
 @media (max-width: 760px) {
   .card { grid-template-columns: minmax(0, 1fr); min-height: auto; }
   .media { min-height: 200px; order: -1; }
-  .about, .history { grid-template-columns: minmax(0, 1fr); }
+  .about, .history, .interests li { grid-template-columns: minmax(0, 1fr); }
+  .interests li { gap: 0.15rem; }
   .nav ul a { padding: 0 0.5rem; }
 }
 

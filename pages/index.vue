@@ -208,9 +208,10 @@
       </section>
 
       <footer class="wrap">
-        <span class="mono" data-reveal>© {{ year }} Borys Babas</span>
+        <!-- No reveal here: the footer sits inside the bottom margin the reveal observer ignores, so it would never show -->
+        <span class="mono">© {{ year }} Borys Babas</span>
         <!-- Plain links: a full page load leaves this page's stylesheet behind -->
-        <ul class="links" data-reveal style="--d: 1">
+        <ul class="links">
           <li><a href="/privacy">Privacy</a></li>
           <li><a href="/terms">Terms</a></li>
         </ul>
