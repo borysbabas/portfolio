@@ -224,10 +224,6 @@
       </footer>
     </div>
 
-    <div ref="cursorEl" aria-hidden="true" class="cursor">
-      <span class="fill"></span><span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span>
-    </div>
-    <div ref="pillEl" aria-hidden="true" class="cursor-pill"><span class="in">View project</span></div>
     <div ref="previewEl" aria-hidden="true" class="preview"><div ref="previewIn" class="in"></div></div>
     <SpeedInsights />
   </div>
@@ -412,8 +408,6 @@ const emailRow = ref<HTMLElement>();
 const emailEl = ref<HTMLElement>();
 const hintEl = ref<HTMLElement>();
 const liveEl = ref<HTMLElement>();
-const cursorEl = ref<HTMLElement>();
-const pillEl = ref<HTMLElement>();
 const previewEl = ref<HTMLElement>();
 const previewIn = ref<HTMLElement>();
 
@@ -729,43 +723,22 @@ onMounted(() => {
     tick(t0);
   }
 
-  // Pointer-driven details: a pill that follows the cursor over project images,
-  // an image preview in list view, and a dot that snaps onto links as corner brackets
+  // List view: the project's image follows the cursor while hovering its row
   if (fine && !reduce) {
-    const pill = pillEl.value!;
     const preview = previewEl.value!;
     const previewInner = previewIn.value!;
-    const cur = cursorEl.value!;
     const cards = document.querySelectorAll("#stack .card");
-    const targets = ".brand, .nav ul a, #theme, .seg button, .email-copy, .links a, .card .more, .history li a";
     let mx = -9999;
     let my = -9999;
-    let overMedia = false;
     let overRow = false;
-    let active: Element | null = null;
-    let first = true;
-    const P = { x: 0, y: 0 };
     const V = { x: 0, y: 0 };
-    const S = { x: 0, y: 0, w: 12, h: 12 };
-    let last = performance.now();
-    const ease = (from: number, to: number, rate: number, dt: number) => from + (to - from) * (1 - Math.pow(1 - rate, dt));
 
-    root.classList.add("has-cursor");
     window.addEventListener("pointermove", (e) => {
       mx = e.clientX;
       my = e.clientY;
-      if (first) {
-        S.x = mx;
-        S.y = my;
-        first = false;
-      }
-      cur.classList.add("live");
     }, { passive: true, signal });
     document.addEventListener("pointerover", (e) => {
-      const el = e.target as Element;
-      overMedia = !!el.closest?.("#stack .media");
-      pill.classList.toggle("show", overMedia);
-      const row = el.closest?.<HTMLElement>(".row");
+      const row = (e.target as Element).closest?.<HTMLElement>(".row");
       const src = row && cards[Number(row.dataset.for)]?.querySelector(".media");
       if (src && previewInner.dataset.for !== row.dataset.for) {
         previewInner.replaceChildren(src.cloneNode(true));
@@ -773,47 +746,15 @@ onMounted(() => {
       }
       overRow = !!src;
       preview.classList.toggle("show", overRow);
-      active = el.closest?.(targets) ?? null;
-      cur.classList.toggle("on", !!active);
-    }, { signal });
-    document.addEventListener("pointerleave", () => {
-      cur.classList.remove("live");
-      active = null;
     }, { signal });
 
-    // Springs for position and size, so the pointer can be redirected mid-flight
-    const loop = (now: number) => {
+    const loop = () => {
       if (!alive) return;
-      const dt = Math.min(4, (now - last) / 16.667);
-      last = now;
-      let tx = mx;
-      let ty = my;
-      let tw = 12;
-      let th = 12;
-      if (active?.isConnected) {
-        const r = active.getBoundingClientRect();
-        const cx = r.left + r.width / 2;
-        const cy = r.top + r.height / 2;
-        tx = cx + (mx - cx) * 0.12;
-        ty = cy + (my - cy) * 0.12;
-        tw = r.width + 16;
-        th = r.height + 12;
-      }
-      S.x = ease(S.x, tx, 0.38, dt);
-      S.y = ease(S.y, ty, 0.38, dt);
-      S.w = ease(S.w, tw, 0.26, dt);
-      S.h = ease(S.h, th, 0.26, dt);
-      cur.style.width = `${S.w.toFixed(1)}px`;
-      cur.style.height = `${S.h.toFixed(1)}px`;
-      cur.style.transform = `translate3d(${(S.x - S.w / 2).toFixed(1)}px,${(S.y - S.h / 2).toFixed(1)}px,0)`;
-      cur.classList.toggle("hide", overMedia || overRow);
-
-      P.x += (mx - P.x) * 0.22;
-      P.y += (my - P.y) * 0.22;
       V.x += (mx - V.x) * 0.12;
       V.y += (my - V.y) * 0.12;
-      pill.style.transform = `translate3d(${P.x - pill.offsetWidth / 2}px,${P.y - pill.offsetHeight / 2}px,0)`;
-      preview.style.transform = `translate3d(${V.x + 24}px,${V.y - 90}px,0) rotate(${Math.max(-6, Math.min(6, (mx - V.x) * 0.04))}deg)`;
+      if (overRow) {
+        preview.style.transform = `translate3d(${V.x + 24}px,${V.y - 90}px,0) rotate(${Math.max(-6, Math.min(6, (mx - V.x) * 0.04))}deg)`;
+      }
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
@@ -825,6 +766,6 @@ onBeforeUnmount(() => {
   clearTimeout(copyTimer);
   cleanups.forEach((fn) => fn());
   // These live on <html>, outside this page, and would otherwise carry over to the next one
-  document.documentElement.classList.remove("js", "loading", "rv", "ready", "first", "has-cursor");
+  document.documentElement.classList.remove("js", "loading", "rv", "ready", "first");
 });
 </script>

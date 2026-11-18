@@ -153,34 +153,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-o
 }
 @media (max-width: 760px) { .row a { grid-template-columns: 2.5rem minmax(0, 1fr) 1.5rem; } .row .k { display: none; } }
 
-/* Cursor-following pill over project images, and the image preview in list view */
-.cursor-pill, .preview { position: fixed; left: 0; top: 0; z-index: 40; pointer-events: none; opacity: 0; transition: opacity 150ms ease; }
-.cursor-pill.show, .preview.show { opacity: 1; }
-.cursor-pill .in {
-  display: block; padding: 0.55rem 0.9rem; border-radius: 999px; background: var(--ink); color: var(--paper);
-  font: 500 0.8125rem var(--body); white-space: nowrap; transform: scale(0.6); transition: transform 220ms var(--ease-out);
-}
-.cursor-pill.show .in { transform: scale(1); }
+/* Image preview that follows the cursor in list view */
+.preview { position: fixed; left: 0; top: 0; z-index: 40; pointer-events: none; opacity: 0; transition: opacity 150ms ease; }
+.preview.show { opacity: 1; }
 .preview .in { width: 300px; aspect-ratio: 16 / 10; border-radius: 12px; overflow: hidden; box-shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.45); transform: scale(0.9); transition: transform 240ms var(--ease-out); }
 .preview.show .in { transform: scale(1); }
 .preview .media { min-height: 0; height: 100%; border-radius: 0; animation: none !important; clip-path: none !important; }
 .preview .media > * { animation: none !important; padding: 0.75rem; }
-.media { cursor: default; }
-
-/* Pointer: a dot that snaps onto buttons and links as four corner brackets.
-   It inverts what is behind it, so it reads on light, dark and photos alike. */
-.cursor { position: fixed; left: 0; top: 0; z-index: 50; pointer-events: none; mix-blend-mode: difference; opacity: 0; transition: opacity 150ms ease; }
-.cursor.live { opacity: 1; }
-.cursor.hide { opacity: 0; }
-.cursor .fill { position: absolute; inset: 0; border-radius: 50%; background: #FFFFFF; transition: transform 200ms var(--ease-out), opacity 150ms ease; }
-.cursor.on .fill { transform: scale(0.2); opacity: 0; }
-.cursor .c { position: absolute; width: 10px; height: 10px; border: 0 solid #FFFFFF; opacity: 0; transition: opacity 150ms ease; }
-.cursor.on .c { opacity: 1; }
-.cursor .tl { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; border-top-left-radius: 4px; }
-.cursor .tr { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 4px; }
-.cursor .bl { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 4px; }
-.cursor .br { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 4px; }
-html.has-cursor, html.has-cursor * { cursor: none !important; }
 
 /* Theme switch with a circular reveal */
 .theme-btn {
