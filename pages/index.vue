@@ -1,9 +1,7 @@
 <template>
   <div>
     <div v-if="showLoader" ref="loaderEl" class="loader" aria-hidden="true">
-      <div class="loader-top">
-        <span class="mono">Borys Babas</span><span class="mono">Portfolio 2026</span>
-      </div>
+      <div class="loader-top"><span class="mono">Borys Babas</span></div>
       <div ref="countEl" class="loader-count">000</div>
       <span ref="barEl" class="loader-bar"></span>
     </div>
@@ -37,7 +35,7 @@
 
     <main id="top">
       <section aria-label="Introduction" class="hero wrap">
-        <p class="mono">AI developer and creative technologist · Amsterdam</p>
+        <p class="mono">Junior AI Developer · Amsterdam</p>
         <h1 ref="nameEl" aria-label="Borys Babas" class="name">
           <span v-for="(line, li) in nameLines" :key="li" :class="`line l${li + 1}`" aria-hidden="true">
             <span v-for="ch in line" :key="ch.i" :style="{ '--i': ch.i }" class="ch"><span class="chi">{{ ch.c }}</span></span>
@@ -74,34 +72,36 @@
             </button>
           </div>
         </div>
+        <p v-if="!projects.length" class="empty">
+          My projects didn't load just now. They're all on
+          <a href="https://github.com/borysbabas">GitHub</a>.
+        </p>
         <ol id="list" :hidden="view !== 'list'" class="list">
-          <li v-for="(p, i) in projects" :key="p.title" :data-for="i" class="row">
-            <a :href="p.href">
-              <span class="n">{{ num(i) }}</span><span class="t">{{ p.title }}</span><span class="k">{{ p.kind }}</span><span aria-hidden="true" class="arrow">{{ p.href ? "→" : "" }}</span>
+          <li v-for="(p, i) in projects" :key="p.repo" :data-for="i" class="row">
+            <a :href="p.site || p.repo">
+              <span class="n">{{ num(i) }}</span><span class="t">{{ p.title }}</span><span class="k">{{ p.kind }}</span><span aria-hidden="true" class="arrow">→</span>
             </a>
           </li>
         </ol>
-        <div id="stack" :hidden="view !== 'stack'" class="stack">
-          <article v-for="(p, i) in projects" :key="p.title" :style="cardStyle(i)" class="card">
+        <div id="stack" :hidden="view !== 'stack'" :style="{ timelineScope }" class="stack">
+          <article
+            v-for="(p, i) in projects"
+            :key="p.repo"
+            :class="['card', { 'text-only': !p.image }]"
+            :style="cardStyle(i)"
+          >
             <div class="card-text">
               <span class="num">{{ num(i) }} · {{ p.kind }}</span>
               <h3>{{ p.title }}</h3>
               <p>{{ p.text }}</p>
               <div class="tags"><span v-for="t in p.tags" :key="t">{{ t }}</span></div>
-              <a v-if="p.href" :href="p.href" class="more">View project <span aria-hidden="true">→</span></a>
-            </div>
-            <div :class="['media', p.media]" aria-hidden="true">
-              <div v-if="p.media === 'm1'" class="bars">
-                <i v-for="w in [92, 74, 58, 81]" :key="w" :style="{ width: `${w}%` }"></i>
+              <div class="links-row">
+                <a v-if="p.site" :href="p.site" class="more">Visit site <span aria-hidden="true">→</span></a>
+                <a :href="p.repo" class="more">GitHub <span aria-hidden="true">→</span></a>
               </div>
-              <template v-else-if="p.media === 'm2'">
-                <div class="rings"></div>
-                <div class="dot"></div>
-              </template>
-              <span v-else-if="p.media === 'm3'" class="score">812</span>
-              <span v-else-if="p.media === 'm4'" class="clock">14:32</span>
-              <span v-else-if="p.media === 'm5'" class="mark">DE</span>
-              <div v-else class="frame"><span>Claude · Gemini · GPT-5</span></div>
+            </div>
+            <div v-if="p.image" class="media">
+              <img :src="p.image" alt="" decoding="async" loading="lazy" />
             </div>
           </article>
         </div>
@@ -110,11 +110,10 @@
       <section aria-labelledby="strip-h" class="strip">
         <div class="strip-pin">
           <div class="strip-head section-head">
-            <h2 id="strip-h" data-reveal>What I work on</h2>
-            <span class="mono" data-reveal style="--d: 1">Keep scrolling →</span>
+            <h2 id="strip-h" data-reveal>What I work with</h2>
           </div>
           <div class="track">
-            <div v-for="(panel, i) in panels" :key="panel.title" :style="{ '--d': i + 1 }" class="panel" data-reveal>
+            <div v-for="(panel, i) in stack" :key="panel.title" :style="{ '--d': i + 1 }" class="panel" data-reveal>
               <span class="k">{{ num(i) }}</span>
               <div>
                 <h3>{{ panel.title }}</h3>
@@ -128,14 +127,7 @@
       <section id="about" aria-labelledby="about-h" class="about wrap">
         <div>
           <h2 id="about-h" data-reveal>About</h2>
-          <p data-reveal style="--d: 1">
-            I'm Borys, originally from Poland and now based in Amsterdam. I'm a junior AI engineer at Reshift,
-            mostly on Kieskeurig.nl, and I study Software Engineering at the HvA.
-          </p>
-          <p data-reveal style="--d: 2">
-            What I care about when I build is how it feels to use: the interaction should be smooth, and the
-            interface should make sense without explaining itself. When I'm not building, it's usually one of these.
-          </p>
+          <p data-reveal style="--d: 1">I'm Borys, from Poland and based in Amsterdam.</p>
           <h3 class="mono interests-h" data-reveal>Interests</h3>
           <ul class="interests">
             <li v-for="(item, i) in interests" :key="item.title" :style="{ '--d': i }" data-reveal>
@@ -154,7 +146,6 @@
                 width="768"
               />
             </div>
-            <figcaption class="mono" data-reveal style="--d: 1">Mid-jump.</figcaption>
           </figure>
           <dl class="facts">
             <div v-for="(fact, i) in facts" :key="fact[0]" :style="{ '--d': i }" data-reveal>
@@ -217,15 +208,16 @@
       </section>
 
       <footer class="wrap">
-        <span class="mono" data-reveal>© 2026 Borys Babas · Amsterdam</span>
-        <span class="mono" data-reveal style="--d: 1">Last updated November 2026</span>
+        <!-- No reveal here: the footer sits inside the bottom margin the reveal observer ignores, so it would never show -->
+        <span class="mono">© {{ year }} Borys Babas</span>
+        <!-- Plain links: a full page load leaves this page's stylesheet behind -->
+        <ul class="links">
+          <li><a href="/privacy">Privacy</a></li>
+          <li><a href="/terms">Terms</a></li>
+        </ul>
       </footer>
     </div>
 
-    <div ref="cursorEl" aria-hidden="true" class="cursor">
-      <span class="fill"></span><span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span>
-    </div>
-    <div ref="pillEl" aria-hidden="true" class="cursor-pill"><span class="in">View project</span></div>
     <div ref="previewEl" aria-hidden="true" class="preview"><div ref="previewIn" class="in"></div></div>
     <SpeedInsights />
   </div>
@@ -234,6 +226,7 @@
 <script lang="ts" setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import { SpeedInsights } from "@vercel/speed-insights/vue";
+import type { PublicRepo } from "~/server/api/github/repos.get";
 import "~/assets/css/home.css";
 
 definePageMeta({ layout: false });
@@ -257,10 +250,44 @@ useHead({
   script: [{ innerHTML: HTML_CLASSES, tagPosition: "bodyOpen" }],
 });
 
+// Server-side and cached by the endpoint, so the work section is in the first HTML
+const { data: repos } = await useFetch<PublicRepo[]>("/api/github/repos", {
+  key: "github-repos",
+  default: () => [],
+});
+
+// The profile README, and this site itself
+const HIDDEN_REPOS = new Set(["borysbabas", "portfolio"]);
+const LABEL_TOPICS = new Set(["school-project", "client-website"]);
+
+// Descriptions often open with the project name ("ROTK: a text adventure...") and close with
+// "HvA school project.", which the card already shows as its title and its School label
+const cleanDescription = (text: string) => {
+  const s = text.replace(/^[^:.]{1,30}:\s*/, "").replace(/\s*HvA school project\.$/, "");
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
+
+const projects = computed(() =>
+  (repos.value ?? [])
+    .filter((r) => !HIDDEN_REPOS.has(r.name))
+    .map((r) => ({
+      // README titles carry the odd tagline or full stop ("DeKamer.", "Name, My Next-Gen ...")
+      title: (r.readmeTitle || r.name).split(", ")[0]!.replace(/\.$/, ""),
+      kind: r.topics.includes("school-project") ? "School" : r.topics.includes("client-website") ? "Client" : "Personal",
+      text: cleanDescription(r.description),
+      tags: r.topics.filter((t) => !LABEL_TOPICS.has(t)).slice(0, 4),
+      image: r.thumbnail,
+      site: r.homepage || "",
+      repo: r.html_url,
+    }))
+    // Projects with a README image lead; sort is stable, so each group keeps GitHub's last-updated order
+    .sort((a, b) => Number(!a.image) - Number(!b.image)),
+);
+
 let n = 0;
 const nameLines = ["Borys", "Babas"].map((word) => Array.from(word, (c) => ({ c, i: n++ })));
 
-const heroLine = "I design and build websites, interfaces and AI features. Currently at Reshift in Amsterdam.";
+const heroLine = "I build websites, web apps and AI features.";
 const heroWords = heroLine.split(" ");
 
 const statement =
@@ -268,78 +295,33 @@ const statement =
 const statementWords = statement.split(" ").map((t) => ({ t, em: t === "Kieskeurig.nl" }));
 
 const contactLine = "Let's talk.";
+const year = new Date().getFullYear();
 
 const num = (i: number) => String(i + 1).padStart(2, "0");
 
-const projects = [
-  {
-    title: "Kieskeurig.nl",
-    kind: "Work · Reshift",
-    text: "AI features for the Netherlands' largest tech-focused media company. Kieskeurig.nl handles millions of product prices, reviews and stock updates a day, and I put language models to work on that data.",
-    tags: ["AI", "Language models", "Product data"],
-    href: "https://www.kieskeurig.nl",
-    media: "m1",
-  },
-  {
-    title: "The Controlling Wearable",
-    kind: "School · Studio Dark Tech",
-    text: "A wearable that monitors and steers behaviour, made for Tinker: Ethical TechLab.",
-    tags: ["Wearable", "Prototype", "Research"],
-    href: "https://greep-h1.vercel.app",
-    media: "m2",
-  },
-  {
-    title: "Ragebaiter",
-    kind: "Concept",
-    text: "A satirical Dutch social credit score, built as the most stereotypically Dutch mobile site I could make.",
-    tags: ["Mobile web", "Satire"],
-    media: "m3",
-  },
-  {
-    title: "tv-launcher",
-    kind: "Personal",
-    text: "An ambient screensaver and home screen for a Sony Bravia, with its own small API behind it.",
-    tags: ["Kotlin", "JavaScript", "Vercel"],
-    href: "https://github.com/borysbabas/tv-launcher",
-    media: "m4",
-  },
-  {
-    title: "De Elektraman",
-    kind: "Client · Freelance",
-    text: "The website for an electrical business, which I designed, built and still run.",
-    tags: ["Website", "Vercel"],
-    href: "https://deelektraman.com",
-    media: "m5",
-  },
-  {
-    title: "ParallaxAI",
-    kind: "School · Studio Dark Tech",
-    text: "A photo booth where AI models make assumptions about you from a single photo, to show how confidently, and how biased, AI judges people.",
-    tags: ["Vue", "TensorFlow.js", "FastAPI"],
-    href: "https://github.com/borysbabas/ParallaxAI",
-    media: "m6",
-  },
-];
-
 // Each card sinks as the next one slides over it, so it runs on the next card's view timeline.
+// The stack declares every name so the timelines resolve across siblings.
+const timelineScope = computed(() =>
+  projects.value.slice(1).map((_, i) => `--c${i + 2}`).join(", ") || "none",
+);
 const cardStyle = (i: number) => ({
   "--i": i,
   ...(i > 0 && { viewTimelineName: `--c${i + 1}` }),
-  ...(i < projects.length - 1 ? { animationTimeline: `--c${i + 2}` } : { animationName: "none" }),
+  ...(i < projects.value.length - 1 ? { animationTimeline: `--c${i + 2}` } : { animationName: "none" }),
 });
 
-const panels = [
-  { title: "Front-end development", text: "Websites and web apps in Vue, Nuxt and TypeScript, built to be fast and easy to maintain." },
-  { title: "AI features", text: "Building AI into real products at Reshift, from the prompt to the interface around it." },
-  { title: "Interaction and motion", text: "Animations, states and small details that make an interface feel finished." },
-  { title: "Websites for small businesses", text: "Sites the owner can keep up to date, like the one I run for De Elektraman." },
+const stack = [
+  { title: "Front end", text: "Vue, Nuxt, React, Next.js, TypeScript, Tailwind CSS, Lit, GSAP and Three.js." },
+  { title: "Back end", text: "Node.js, Express, Laravel, FastAPI and Java." },
+  { title: "Data and hosting", text: "MySQL, MariaDB, Supabase, Docker, Nginx, Apache and Vercel." },
+  { title: "Apps and tools", text: "Kotlin, Flutter, Python and Playwright. Figma, GitHub and GitLab." },
 ];
 
 const interests = [
-  { title: "Hi-fi audio", text: "At Hifi Klubben I help people find their setup, from entry-level systems to high-end audiophile gear." },
-  { title: "Mechanical keyboards", text: "Custom builds, where I experiment with switches, layouts and keycaps." },
-  { title: "Gaming", text: "FPS for quick decisions, sandbox games for building, RPGs for the stories." },
-  { title: "Custom PCs", text: "Building my own machines, and a NAS at home that runs a dashboard I made." },
+  { title: "Hi-fi audio", text: "Sales at Hifi Klubben, and Sweetspot, a speaker placement tool I made." },
+  { title: "Mechanical keyboards", text: "Custom builds, switches and keycaps." },
+  { title: "Gaming", text: "FPS, sandbox games and RPGs." },
+  { title: "PCs and networking", text: "My own PCs, and a NAS at home that runs a dashboard I made." },
 ];
 
 const facts = [
@@ -421,8 +403,6 @@ const emailRow = ref<HTMLElement>();
 const emailEl = ref<HTMLElement>();
 const hintEl = ref<HTMLElement>();
 const liveEl = ref<HTMLElement>();
-const cursorEl = ref<HTMLElement>();
-const pillEl = ref<HTMLElement>();
 const previewEl = ref<HTMLElement>();
 const previewIn = ref<HTMLElement>();
 
@@ -684,7 +664,8 @@ onMounted(() => {
     } catch {}
     const tasks: Promise<unknown>[] = [];
     if (document.fonts?.ready) tasks.push(document.fonts.ready);
-    document.querySelectorAll("img").forEach((img) => {
+    // Lazy project images only load once scrolled to, so waiting on them would hold the loader to its time limit
+    document.querySelectorAll<HTMLImageElement>('img:not([loading="lazy"])').forEach((img) => {
       tasks.push(
         img.complete
           ? Promise.resolve()
@@ -737,93 +718,38 @@ onMounted(() => {
     tick(t0);
   }
 
-  // Pointer-driven details: a pill that follows the cursor over project images,
-  // an image preview in list view, and a dot that snaps onto links as corner brackets
+  // List view: the project's image follows the cursor while hovering its row
   if (fine && !reduce) {
-    const pill = pillEl.value!;
     const preview = previewEl.value!;
     const previewInner = previewIn.value!;
-    const cur = cursorEl.value!;
-    const medias = document.querySelectorAll("#stack .media");
-    const targets = ".brand, .nav ul a, #theme, .seg button, .email-copy, .links a, .card .more, .history li a";
+    const cards = document.querySelectorAll("#stack .card");
     let mx = -9999;
     let my = -9999;
-    let overMedia = false;
     let overRow = false;
-    let active: Element | null = null;
-    let first = true;
-    const P = { x: 0, y: 0 };
     const V = { x: 0, y: 0 };
-    const S = { x: 0, y: 0, w: 12, h: 12 };
-    let last = performance.now();
-    const ease = (from: number, to: number, rate: number, dt: number) => from + (to - from) * (1 - Math.pow(1 - rate, dt));
 
-    root.classList.add("has-cursor");
     window.addEventListener("pointermove", (e) => {
       mx = e.clientX;
       my = e.clientY;
-      if (first) {
-        S.x = mx;
-        S.y = my;
-        first = false;
-      }
-      cur.classList.add("live");
     }, { passive: true, signal });
     document.addEventListener("pointerover", (e) => {
-      const el = e.target as Element;
-      overMedia = !!el.closest?.("#stack .media");
-      pill.classList.toggle("show", overMedia);
-      const row = el.closest?.<HTMLElement>(".row");
-      if (row) {
-        const src = medias[Number(row.dataset.for)];
-        if (src && previewInner.dataset.for !== row.dataset.for) {
-          previewInner.replaceChildren(src.cloneNode(true));
-          previewInner.dataset.for = row.dataset.for;
-        }
+      const row = (e.target as Element).closest?.<HTMLElement>(".row");
+      const src = row && cards[Number(row.dataset.for)]?.querySelector(".media");
+      if (src && previewInner.dataset.for !== row.dataset.for) {
+        previewInner.replaceChildren(src.cloneNode(true));
+        previewInner.dataset.for = row.dataset.for;
       }
-      overRow = !!row;
+      overRow = !!src;
       preview.classList.toggle("show", overRow);
-      active = el.closest?.(targets) ?? null;
-      cur.classList.toggle("on", !!active);
-    }, { signal });
-    document.addEventListener("pointerleave", () => {
-      cur.classList.remove("live");
-      active = null;
     }, { signal });
 
-    // Springs for position and size, so the pointer can be redirected mid-flight
-    const loop = (now: number) => {
+    const loop = () => {
       if (!alive) return;
-      const dt = Math.min(4, (now - last) / 16.667);
-      last = now;
-      let tx = mx;
-      let ty = my;
-      let tw = 12;
-      let th = 12;
-      if (active?.isConnected) {
-        const r = active.getBoundingClientRect();
-        const cx = r.left + r.width / 2;
-        const cy = r.top + r.height / 2;
-        tx = cx + (mx - cx) * 0.12;
-        ty = cy + (my - cy) * 0.12;
-        tw = r.width + 16;
-        th = r.height + 12;
-      }
-      S.x = ease(S.x, tx, 0.38, dt);
-      S.y = ease(S.y, ty, 0.38, dt);
-      S.w = ease(S.w, tw, 0.26, dt);
-      S.h = ease(S.h, th, 0.26, dt);
-      cur.style.width = `${S.w.toFixed(1)}px`;
-      cur.style.height = `${S.h.toFixed(1)}px`;
-      cur.style.transform = `translate3d(${(S.x - S.w / 2).toFixed(1)}px,${(S.y - S.h / 2).toFixed(1)}px,0)`;
-      cur.classList.toggle("hide", overMedia || overRow);
-
-      P.x += (mx - P.x) * 0.22;
-      P.y += (my - P.y) * 0.22;
       V.x += (mx - V.x) * 0.12;
       V.y += (my - V.y) * 0.12;
-      pill.style.transform = `translate3d(${P.x - pill.offsetWidth / 2}px,${P.y - pill.offsetHeight / 2}px,0)`;
-      preview.style.transform = `translate3d(${V.x + 24}px,${V.y - 90}px,0) rotate(${Math.max(-6, Math.min(6, (mx - V.x) * 0.04))}deg)`;
+      if (overRow) {
+        preview.style.transform = `translate3d(${V.x + 24}px,${V.y - 90}px,0) rotate(${Math.max(-6, Math.min(6, (mx - V.x) * 0.04))}deg)`;
+      }
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
@@ -835,6 +761,6 @@ onBeforeUnmount(() => {
   clearTimeout(copyTimer);
   cleanups.forEach((fn) => fn());
   // These live on <html>, outside this page, and would otherwise carry over to the next one
-  document.documentElement.classList.remove("js", "loading", "rv", "ready", "first", "has-cursor");
+  document.documentElement.classList.remove("js", "loading", "rv", "ready", "first");
 });
 </script>
