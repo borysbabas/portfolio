@@ -28,7 +28,7 @@
       <section aria-label="Statement" class="statement wrap">
         <p ref="bigEl" class="big">
           <span class="sr-only">{{ statement }}</span>
-          <template v-for="(w, i) in statementWords" :key="i"><em v-if="w.em"><span :style="{ '--wi': i }" aria-hidden="true" class="w">{{ w.t }}</span></em><span v-else :style="{ '--wi': i }" aria-hidden="true" class="w">{{ w.t }}</span>{{ i < statementWords.length - 1 ? " " : "" }}</template>
+          <template v-for="(w, i) in statementWords" :key="i"><span :style="{ '--wi': i }" aria-hidden="true" class="w"><em v-if="w.em">{{ w.em }}</em>{{ w.t }}</span>{{ i < statementWords.length - 1 ? " " : "" }}</template>
         </p>
       </section>
 
@@ -268,7 +268,11 @@ const heroLine = computed(() => t.value.heroLine);
 const heroWords = computed(() => heroLine.value.split(" "));
 
 const statement = computed(() => t.value.statement);
-const statementWords = computed(() => statement.value.split(" ").map((w) => ({ t: w, em: w === "Kieskeurig.nl" })));
+// Dutch and Polish end the sentence on the name ("Kieskeurig.nl."), so punctuation after it stays outside the highlight
+const HIGHLIGHT = "Kieskeurig.nl";
+const statementWords = computed(() =>
+  statement.value.split(" ").map((w) => (w.startsWith(HIGHLIGHT) ? { em: HIGHLIGHT, t: w.slice(HIGHLIGHT.length) } : { em: "", t: w })),
+);
 
 const contactLine = computed(() => t.value.contact.line);
 const year = new Date().getFullYear();

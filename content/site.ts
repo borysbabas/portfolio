@@ -168,7 +168,6 @@ const en = {
             back: "Back",
             next: "Next step",
             done: "Done",
-            awake: "Screen stays on",
         },
         errors: {
             generic: "Something went wrong, try again.",
@@ -360,7 +359,6 @@ const nl: SiteText = {
             back: "Vorige",
             next: "Volgende stap",
             done: "Klaar",
-            awake: "Scherm blijft aan",
         },
         errors: {
             generic: "Er ging iets mis, probeer het opnieuw.",
@@ -550,7 +548,6 @@ const pl: SiteText = {
             back: "Wstecz",
             next: "Następny krok",
             done: "Gotowe",
-            awake: "Ekran pozostaje włączony",
         },
         errors: {
             generic: "Coś poszło nie tak, spróbuj ponownie.",

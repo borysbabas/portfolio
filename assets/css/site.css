@@ -290,7 +290,8 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
   .email-copy:hover .email { color: #111111; }
   .email-copy:hover + .copy-hint { opacity: 1; transform: none; }
 }
-.links { display: flex; gap: 0.25rem; flex-wrap: wrap; list-style: none; margin: 0; padding: 0; }
+/* The padding is each link's tap area; the negative margin lines the text up with the text around it */
+.links { display: flex; gap: 0.25rem; flex-wrap: wrap; list-style: none; margin: 0 -0.75rem; padding: 0; }
 .links a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 0.75rem; text-decoration: none; color: var(--muted); }
 .links a:hover { color: var(--ink); }
 .links button { display: inline-flex; align-items: center; min-height: 44px; padding: 0 0.75rem; border: 0; background: none; font: inherit; color: var(--muted); cursor: pointer; }
@@ -303,6 +304,11 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
   .about, .history, .interests li { grid-template-columns: minmax(0, 1fr); }
   .interests li { gap: 0.15rem; }
   .nav ul a { padding: 0 0.5rem; }
+}
+
+@media (max-width: 560px) {
+  /* Dates under the title every time, instead of beside it only when the title is short */
+  .history .top { flex-direction: column; align-items: start; gap: 0.35rem; }
 }
 
 /* Preloader: holds the page until fonts and images are in, then lifts away */
@@ -412,5 +418,4 @@ html.loading { overflow: hidden; }
 .error-page h1 { margin: 0; font-weight: 650; font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1; }
 .error-page p { margin: 0; color: var(--muted); max-width: 50ch; }
 .error-page .error-code { color: var(--ink); }
-.error-page .links { margin-left: -0.75rem; }
 .error-page pre { max-width: 100%; overflow-x: auto; padding: 1rem; border-radius: 10px; background: var(--surface); font-family: var(--mono); font-size: 0.8125rem; }
