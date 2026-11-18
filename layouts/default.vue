@@ -1,9 +1,6 @@
 <template>
   <div
-    :class="[
-      'bg-background-light-2 dark:bg-background-dark-2 relative flex min-h-screen w-full items-start justify-center',
-      { 'h-full w-full': isInterestsPage },
-    ]"
+    class="bg-background-light-2 dark:bg-background-dark-2 relative flex min-h-screen w-full items-start justify-center"
   >
     <div
       v-if="isBlogPage"
@@ -43,9 +40,6 @@ import CustomCursor from "~/components/CustomCursor.vue";
 
 const route = useRoute();
 
-// Compare on path: Nuxt derives route names from filenames, so this never
-// matched the capitalised "Interests" it was previously tested against.
-const isInterestsPage = computed(() => route.path === "/interests");
 const isBlogPage = computed(() => route.path.startsWith("/blog/"));
 
 const scrollProgress = ref(0);

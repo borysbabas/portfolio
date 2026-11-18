@@ -14,10 +14,10 @@ export interface NavLink {
 export function useNavigation(): { links: NavLink[] } {
     return {
         links: [
-            {path: "/projects", label: "Projects"},
-            {path: "/interests", label: "Interests"},
+            {path: "/#work", label: "Work"},
+            {path: "/#about", label: "About"},
             {path: "/blog", label: "Blog"},
-            {path: "/contact", label: "Contact"},
+            {path: "/#contact", label: "Contact"},
         ],
     };
 }

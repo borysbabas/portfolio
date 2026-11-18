@@ -10,9 +10,6 @@ const { data: posts } = await useBlogPosts();
 
 const pageDescriptions: Record<string, string> = {
   "/": "Welcome to my portfolio",
-  "/projects": "Explore my GitHub projects and repositories",
-  "/interests": "My hobbies and personal interests",
-  "/contact": "Get in touch with me",
   "/privacy": "How I handle your data",
   "/terms": "Terms and conditions",
   "/blog": "Read my latest blog posts and articles",
@@ -20,9 +17,6 @@ const pageDescriptions: Record<string, string> = {
 
 const pageTitles: Record<string, string> = {
   "/": "Home",
-  "/projects": "Projects",
-  "/interests": "Interests",
-  "/contact": "Contact",
   "/privacy": "Privacy Policy",
   "/terms": "Terms of Service",
   "/blog": "Blog",
@@ -30,9 +24,6 @@ const pageTitles: Record<string, string> = {
 
 const pageCategories: Record<string, "main" | "legal"> = {
   "/": "main",
-  "/projects": "main",
-  "/interests": "main",
-  "/contact": "main",
   "/blog": "main",
   "/privacy": "legal",
   "/terms": "legal",
@@ -247,7 +238,7 @@ const externalLinks = [
               This sitemap provides a comprehensive overview of all pages and
               content available on my portfolio website. If you're looking for
               something specific or have any questions, feel free to
-              <NuxtLink class="social-link underline" to="/contact">
+              <NuxtLink class="social-link underline" to="/#contact">
                 contact me
               </NuxtLink>
               .

@@ -42,7 +42,7 @@
         </button>
         <NuxtLink
             class="border-border-light text-text-primary hover:bg-background-light-2 rounded-md border px-4 py-2 text-xs font-medium transition-all duration-300 md:text-sm"
-            to="/projects"
+            to="/#work"
         >
           View projects
         </NuxtLink>

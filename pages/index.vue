@@ -1,395 +1,840 @@
 <template>
-  <div class="relative w-full">
-    <section
-      class="flex min-h-screen w-full flex-col items-center justify-center"
-    >
-      <!-- Intro Overlay -->
-      <div
-        v-if="showIntro"
-        class="bg-background-light animate-introFadeOut fixed inset-0 z-50 flex items-center justify-center"
-      >
-        <h1
-          id="intro-title"
-          class="text-text-primary animate-scaleIn text-lg font-bold md:text-2xl"
-        >
-          Borys Babas
-        </h1>
+  <div>
+    <div v-if="showLoader" ref="loaderEl" class="loader" aria-hidden="true">
+      <div class="loader-top">
+        <span class="mono">Borys Babas</span><span class="mono">Portfolio 2026</span>
       </div>
+      <div ref="countEl" class="loader-count">000</div>
+      <span ref="barEl" class="loader-bar"></span>
+    </div>
 
-      <!-- Hero Section -->
-      <FadeInSection
-        v-if="showContent"
-        :distance="36"
-        :duration="1100"
-        class="flex min-h-svh w-full flex-col items-center justify-center px-4 pt-24 pb-16 md:pt-28 md:pb-20"
-      >
-        <div
-          class="flex w-full max-w-5xl flex-col items-center justify-center gap-8 px-4 md:flex-row md:gap-12 md:px-6"
+    <header class="nav">
+      <a class="brand" href="#top">Borys Babas</a>
+      <div class="nav-right">
+        <nav aria-label="Main">
+          <ul>
+            <li><a href="#work">Work</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </nav>
+        <button
+          id="theme"
+          ref="themeBtn"
+          :aria-label="themeLabel"
+          class="theme-btn"
+          type="button"
+          @click="toggleTheme"
         >
-          <!-- Portrait -->
-          <div :style="{ opacity: heroOpacity }">
-            <ExplodingImage
-              :main-image="'/img/raadfxrd.jpeg'"
-              :satellite-images="[
-                '/img/satelite/borys.jpeg',
-                '/img/satelite/lemur.jpeg',
-                '/img/satelite/kitteh.jpeg',
-                '/img/satelite/desk-setup.jpeg',
-                '/img/satelite/living-room.jpeg',
-              ]"
-              alt="Portrait of Borys"
-            />
+          <svg aria-hidden="true" fill="none" height="18" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" width="18">
+            <circle cx="12" cy="12" r="8"></circle>
+            <path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"></path>
+          </svg>
+        </button>
+      </div>
+      <span aria-hidden="true" class="progress"></span>
+    </header>
+
+    <main id="top">
+      <section aria-label="Introduction" class="hero wrap">
+        <p class="mono">AI developer and creative technologist · Amsterdam</p>
+        <h1 ref="nameEl" aria-label="Borys Babas" class="name">
+          <span v-for="(line, li) in nameLines" :key="li" :class="`line l${li + 1}`" aria-hidden="true">
+            <span v-for="ch in line" :key="ch.i" :style="{ '--i': ch.i }" class="ch"><span class="chi">{{ ch.c }}</span></span>
+          </span>
+        </h1>
+        <div class="hero-foot">
+          <p>
+            <span class="sr-only">{{ heroLine }}</span>
+            <template v-for="(w, i) in heroWords" :key="i"><span aria-hidden="true" class="hw"><span :style="{ '--wi': i }">{{ w }}</span></span>{{ i < heroWords.length - 1 ? " " : "" }}</template>
+          </p>
+          <span class="mono scroll-cue">Scroll</span>
+        </div>
+      </section>
+
+      <section aria-label="Statement" class="statement wrap">
+        <p ref="bigEl" class="big">
+          <span class="sr-only">{{ statement }}</span>
+          <template v-for="(w, i) in statementWords" :key="i"><em v-if="w.em"><span :style="{ '--wi': i }" aria-hidden="true" class="w">{{ w.t }}</span></em><span v-else :style="{ '--wi': i }" aria-hidden="true" class="w">{{ w.t }}</span>{{ i < statementWords.length - 1 ? " " : "" }}</template>
+        </p>
+      </section>
+
+      <section id="work" aria-labelledby="work-h" class="wrap">
+        <div class="section-head">
+          <h2 id="work-h" data-reveal>Selected work</h2>
+          <div aria-label="Show projects as" class="seg" data-reveal role="group" style="--d: 1">
+            <button
+              v-for="v in views"
+              :key="v"
+              :aria-pressed="String(view === v)"
+              type="button"
+              @click="setView(v)"
+            >
+              {{ v === "stack" ? "Stack" : "List" }}
+            </button>
           </div>
-          <!-- Text Section -->
-          <div class="w-full max-w-lg text-center wrap-break-word md:text-left">
-            <!-- Not `.gradient`: each letter is transformed by its own reveal
-                 animation, and WebKit drops transformed descendants out of an
-                 ancestor's `background-clip: text` -- which left the whole
-                 greeting invisible on iOS. The sweep is baked per letter
-                 instead. See useGreeting. -->
-            <h1
-              class="mb-2 flex flex-wrap justify-center gap-2 text-xl font-bold sm:text-2xl md:justify-start md:text-3xl"
-            >
-              <span
-                v-for="(word, wi) in greetingWords"
-                :key="wi"
-                class="inline-flex"
-              >
-                <span
-                  v-for="(letter, li) in word.letters"
-                  :key="li"
-                  :style="{
-                    animationDelay: letter.delay,
-                    color: letter.colour,
-                  }"
-                  class="animate-letterReveal inline-block opacity-0"
-                >
-                  {{ letter.char }}
-                </span>
-                <span class="w-1.5"></span>
-              </span>
-            </h1>
+        </div>
+        <ol id="list" :hidden="view !== 'list'" class="list">
+          <li v-for="(p, i) in projects" :key="p.title" :data-for="i" class="row">
+            <a :href="p.href">
+              <span class="n">{{ num(i) }}</span><span class="t">{{ p.title }}</span><span class="k">{{ p.kind }}</span><span aria-hidden="true" class="arrow">{{ p.href ? "→" : "" }}</span>
+            </a>
+          </li>
+        </ol>
+        <div id="stack" :hidden="view !== 'stack'" class="stack">
+          <article v-for="(p, i) in projects" :key="p.title" :style="cardStyle(i)" class="card">
+            <div class="card-text">
+              <span class="num">{{ num(i) }} · {{ p.kind }}</span>
+              <h3>{{ p.title }}</h3>
+              <p>{{ p.text }}</p>
+              <div class="tags"><span v-for="t in p.tags" :key="t">{{ t }}</span></div>
+              <a v-if="p.href" :href="p.href" class="more">View project <span aria-hidden="true">→</span></a>
+            </div>
+            <div :class="['media', p.media]" aria-hidden="true">
+              <div v-if="p.media === 'm1'" class="bars">
+                <i v-for="w in [92, 74, 58, 81]" :key="w" :style="{ width: `${w}%` }"></i>
+              </div>
+              <template v-else-if="p.media === 'm2'">
+                <div class="rings"></div>
+                <div class="dot"></div>
+              </template>
+              <span v-else-if="p.media === 'm3'" class="score">812</span>
+              <span v-else-if="p.media === 'm4'" class="clock">14:32</span>
+              <span v-else-if="p.media === 'm5'" class="mark">DE</span>
+              <div v-else class="frame"><span>Claude · Gemini · GPT-5</span></div>
+            </div>
+          </article>
+        </div>
+      </section>
 
-            <h1
-              class="gradient animate-textReveal mb-3 text-xl font-bold delay-150 sm:text-2xl md:text-3xl"
-            >
-              I'm Borys!
-            </h1>
+      <section aria-labelledby="strip-h" class="strip">
+        <div class="strip-pin">
+          <div class="strip-head section-head">
+            <h2 id="strip-h" data-reveal>What I work on</h2>
+            <span class="mono" data-reveal style="--d: 1">Keep scrolling →</span>
+          </div>
+          <div class="track">
+            <div v-for="(panel, i) in panels" :key="panel.title" :style="{ '--d': i + 1 }" class="panel" data-reveal>
+              <span class="k">{{ num(i) }}</span>
+              <div>
+                <h3>{{ panel.title }}</h3>
+                <p>{{ panel.text }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-            <h3
-              class="text-text-secondary title-decode mx-auto mb-2 text-sm md:mx-0 md:text-sm"
-            >
-              <span
-                v-for="(entry, i) in titleChars"
-                :key="i"
-                :class="{ 'is-scrambling': entry.scrambling }"
-                class="title-decode__char"
-                >{{ entry.char }}</span
-              >
-            </h3>
-
-            <h3
-              class="text-text-primary animate-textReveal mx-auto mb-4 w-fit text-sm md:mx-0 md:text-lg"
-            >
-              Innovating for success.
-            </h3>
-
-            <!-- Button -->
-            <NuxtLink
-              class="bg-button-primary text-text-primary hover:bg-background-light-2 group relative mx-auto flex w-fit items-center justify-center gap-4 overflow-hidden rounded-md px-4 py-2 text-xs font-medium shadow-sm transition-all duration-300 md:mx-0 md:text-sm"
-              to="/projects"
-            >
-              <span>View my work</span>
-              <ArrowRightIcon
-                class="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+      <section id="about" aria-labelledby="about-h" class="about wrap">
+        <div>
+          <h2 id="about-h" data-reveal>About</h2>
+          <p data-reveal style="--d: 1">
+            I'm Borys, originally from Poland and now based in Amsterdam. I'm a junior AI engineer at Reshift,
+            mostly on Kieskeurig.nl, and I study Software Engineering at the HvA.
+          </p>
+          <p data-reveal style="--d: 2">
+            What I care about when I build is how it feels to use: the interaction should be smooth, and the
+            interface should make sense without explaining itself. When I'm not building, it's usually one of these.
+          </p>
+          <h3 class="mono interests-h" data-reveal>Interests</h3>
+          <ul class="interests">
+            <li v-for="(item, i) in interests" :key="item.title" :style="{ '--d': i }" data-reveal>
+              <h4>{{ item.title }}</h4>
+              <p>{{ item.text }}</p>
+            </li>
+          </ul>
+        </div>
+        <div class="about-side">
+          <figure class="portrait">
+            <div class="ph">
+              <img
+                alt="Borys mid-jump off a quad bike in front of a row of palm trees under a cloudy sky"
+                height="1024"
+                src="/img/about.jpg"
+                width="768"
               />
-            </NuxtLink>
+            </div>
+            <figcaption class="mono" data-reveal style="--d: 1">Mid-jump.</figcaption>
+          </figure>
+          <dl class="facts">
+            <div v-for="(fact, i) in facts" :key="fact[0]" :style="{ '--d': i }" data-reveal>
+              <dt>{{ fact[0] }}</dt>
+              <dd>{{ fact[1] }}</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section aria-label="Experience and education" class="history wrap">
+        <div v-for="group in history" :key="group.title">
+          <h2 data-reveal>{{ group.title }}</h2>
+          <ol>
+            <li v-for="(entry, i) in group.entries" :key="entry.title" :style="{ '--d': i }" data-reveal>
+              <div class="top">
+                <h3>{{ entry.title }}</h3>
+                <span class="mono">{{ entry.period }}</span>
+              </div>
+              <p>{{ entry.text }}</p>
+              <a v-if="entry.link" :href="entry.link.href">{{ entry.link.label }}</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+    </main>
+
+    <div class="closing">
+      <section id="contact" aria-labelledby="contact-h" class="contact wrap">
+        <h2 id="contact-h" ref="contactEl" :aria-label="contactLine">
+          <template v-for="(c, i) in contactLine" :key="i"><template v-if="c === ' '">{{ " " }}</template><span v-else aria-hidden="true" class="lt"><span class="lti">{{ c }}</span></span></template>
+        </h2>
+        <div class="reach">
+          <div ref="emailRow" class="email-row" data-reveal>
+            <button aria-describedby="copy-label" class="email-copy" type="button" @click="copyEmail">
+              <span aria-hidden="true" class="email-sel"></span>
+              <span ref="emailEl" class="email">info@borysbabas.dev</span>
+            </button>
+            <span aria-hidden="true" class="copy-hint mono">
+              <span class="ic">
+                <svg class="cp" fill="none" height="14" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" width="14">
+                  <rect height="11" rx="2" width="11" x="9" y="9"></rect>
+                  <path d="M5 15V5a2 2 0 0 1 2-2h8"></path>
+                </svg>
+                <svg class="ok" fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="14">
+                  <path d="M5 12.5l4.5 4.5L19 7.5"></path>
+                </svg>
+              </span>
+              <span ref="hintEl">Click to copy</span>
+            </span>
+            <span id="copy-label" ref="liveEl" aria-live="polite" class="sr-only">Copies the email address</span>
           </div>
+          <ul class="links">
+            <li data-reveal style="--d: 1"><a href="https://github.com/borysbabas">GitHub</a></li>
+            <li data-reveal style="--d: 2"><a href="https://www.linkedin.com/in/borysbabas/">LinkedIn</a></li>
+            <li data-reveal style="--d: 3"><a href="https://www.instagram.com/borysbabas/">Instagram</a></li>
+            <li data-reveal style="--d: 4"><a download="Borys_CV.pdf" href="/assets/borys-cv.pdf">Download CV</a></li>
+          </ul>
         </div>
-        <TechStack v-if="showContent" />
-      </FadeInSection>
+      </section>
 
-      <!-- Content Section -->
-      <FadeInSection
-        v-if="showContent"
-        :delay="200"
-        :distance="32"
-        class="container mx-auto mt-8 mb-8 max-w-5xl px-4 md:mt-12 md:mb-12 md:px-6"
-      >
-        <div
-          class="relative flex flex-col items-start gap-6 md:gap-8 lg:flex-row"
-        >
-          <!-- Recent Posts Section -->
-          <section class="w-full lg:w-3/5">
-            <h1
-              class="gradient bl-4 mb-4 ml-4 w-fit text-xl font-semibold md:text-2xl"
-            >
-              Recent Posts
-            </h1>
-            <div class="space-y-4">
-              <FadeInSection
-                v-for="(post, key) in posts?.slice(0, 6)"
-                :key="post.path"
-                :delay="key * 80"
-                :distance="18"
-              >
-                <PostCard :post="post" />
-              </FadeInSection>
-            </div>
-          </section>
+      <footer class="wrap">
+        <span class="mono" data-reveal>© 2026 Borys Babas · Amsterdam</span>
+        <span class="mono" data-reveal style="--d: 1">Last updated November 2026</span>
+      </footer>
+    </div>
 
-          <!-- Sidebar Section -->
-          <aside class="w-full lg:w-2/5">
-            <div class="space-y-4">
-              <FadeInSection :delay="120" :distance="18">
-                <SubscriptionForm />
-              </FadeInSection>
-              <FadeInSection :delay="220" :distance="18">
-                <WorkExperience :experiences="experiences" />
-              </FadeInSection>
-              <FadeInSection :delay="300" :distance="18">
-                <EducationTrajectory :educations="educations" />
-              </FadeInSection>
-            </div>
-          </aside>
-        </div>
-      </FadeInSection>
-    </section>
+    <div ref="cursorEl" aria-hidden="true" class="cursor">
+      <span class="fill"></span><span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span>
+    </div>
+    <div ref="pillEl" aria-hidden="true" class="cursor-pill"><span class="in">View project</span></div>
+    <div ref="previewEl" aria-hidden="true" class="preview"><div ref="previewIn" class="in"></div></div>
+    <SpeedInsights />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, nextTick, onUnmounted, watch } from "vue";
-import { ArrowRightIcon } from "@heroicons/vue/24/outline";
-import TechStack from "~/components/TechStack.vue";
-import PostCard from "~/components/PostCard.vue";
-import SubscriptionForm from "~/components/SubscriptionForm.vue";
-import WorkExperience from "~/components/WorkExperience.vue";
-import EducationTrajectory from "~/components/EducationTrajectory.vue";
-import FadeInSection from "~/components/FadeInSection.vue";
-import { useIntroSequence } from "~/composables/useIntroSequence";
-import { useRotatingTitles } from "~/composables/useRotatingTitles";
-import { useGreeting } from "~/composables/useGreeting";
-import { useHeroPortrait } from "~/composables/useHeroPortrait";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import { SpeedInsights } from "@vercel/speed-insights/vue";
+import "~/assets/css/home.css";
 
-const { greetingWords } = useGreeting();
-const { titleChars } = useRotatingTitles();
-const { showIntro, showContent } = useIntroSequence();
+definePageMeta({ layout: false });
 
-/**
- * The navbar avatar flies out of this portrait and back into it; the navbar
- * owns the whole thing -- measurement, trigger and timeline -- and this page
- * only has to get out of the way at the right moment.
- *
- * Nothing is written to the shared state here on purpose. Progress used to be
- * reset from this setup, which fought the navbar for control of it: on arriving
- * back home the reset landed first and snapped the avatar onto the portrait,
- * leaving nothing to fly.
- */
-const { flightProgress, flightActive, heroReady } = useHeroPortrait();
+const EMAIL = "info@borysbabas.dev";
 
-/**
- * Tell the navbar when the portrait is actually on screen.
- *
- * Not on mount: the hero sits behind the intro sequence, so on a first visit
- * the portrait is not in the document for another second. Deferred a tick so
- * the navbar measures against rendered markup rather than an intention.
- */
-watch(
-  showContent,
-  async (visible) => {
-    await nextTick();
-    heroReady.value = visible;
+// The stylesheet keys its entrance states on these classes, so they have to land before first paint.
+// onMounted sets them again for client-side navigation, where this inline script does not run in time.
+const HTML_CLASSES = `(function(){var d=document.documentElement,r=matchMedia("(prefers-reduced-motion: reduce)").matches;d.classList.add("js");if(!r){d.classList.add("loading");if("IntersectionObserver"in window)d.classList.add("rv")}})()`;
+
+useHead({
+  bodyAttrs: { class: "home" },
+  link: [
+    { rel: "preconnect", href: "https://fonts.googleapis.com" },
+    { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
+    {
+      rel: "stylesheet",
+      href: "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist:wght@400..600&family=Geist+Mono:wght@400;500&display=swap",
+    },
+  ],
+  script: [{ innerHTML: HTML_CLASSES, tagPosition: "bodyOpen" }],
+});
+
+let n = 0;
+const nameLines = ["Borys", "Babas"].map((word) => Array.from(word, (c) => ({ c, i: n++ })));
+
+const heroLine = "I design and build websites, interfaces and AI features. Currently at Reshift in Amsterdam.";
+const heroWords = heroLine.split(" ");
+
+const statement =
+  "By day I work on Kieskeurig.nl at Reshift. The rest of the time I study Software Engineering at the HvA and work on side projects, mostly for the web.";
+const statementWords = statement.split(" ").map((t) => ({ t, em: t === "Kieskeurig.nl" }));
+
+const contactLine = "Let's talk.";
+
+const num = (i: number) => String(i + 1).padStart(2, "0");
+
+const projects = [
+  {
+    title: "Kieskeurig.nl",
+    kind: "Work · Reshift",
+    text: "AI features for the Netherlands' largest tech-focused media company. Kieskeurig.nl handles millions of product prices, reviews and stock updates a day, and I put language models to work on that data.",
+    tags: ["AI", "Language models", "Product data"],
+    href: "https://www.kieskeurig.nl",
+    media: "m1",
   },
-  { immediate: true },
+  {
+    title: "The Controlling Wearable",
+    kind: "School · Studio Dark Tech",
+    text: "A wearable that monitors and steers behaviour, made for Tinker: Ethical TechLab.",
+    tags: ["Wearable", "Prototype", "Research"],
+    href: "https://greep-h1.vercel.app",
+    media: "m2",
+  },
+  {
+    title: "Ragebaiter",
+    kind: "Concept",
+    text: "A satirical Dutch social credit score, built as the most stereotypically Dutch mobile site I could make.",
+    tags: ["Mobile web", "Satire"],
+    media: "m3",
+  },
+  {
+    title: "tv-launcher",
+    kind: "Personal",
+    text: "An ambient screensaver and home screen for a Sony Bravia, with its own small API behind it.",
+    tags: ["Kotlin", "JavaScript", "Vercel"],
+    href: "https://github.com/borysbabas/tv-launcher",
+    media: "m4",
+  },
+  {
+    title: "De Elektraman",
+    kind: "Client · Freelance",
+    text: "The website for an electrical business, which I designed, built and still run.",
+    tags: ["Website", "Vercel"],
+    href: "https://deelektraman.com",
+    media: "m5",
+  },
+  {
+    title: "ParallaxAI",
+    kind: "School · Studio Dark Tech",
+    text: "A photo booth where AI models make assumptions about you from a single photo, to show how confidently, and how biased, AI judges people.",
+    tags: ["Vue", "TensorFlow.js", "FastAPI"],
+    href: "https://github.com/borysbabas/ParallaxAI",
+    media: "m6",
+  },
+];
+
+// Each card sinks as the next one slides over it, so it runs on the next card's view timeline.
+const cardStyle = (i: number) => ({
+  "--i": i,
+  ...(i > 0 && { viewTimelineName: `--c${i + 1}` }),
+  ...(i < projects.length - 1 ? { animationTimeline: `--c${i + 2}` } : { animationName: "none" }),
+});
+
+const panels = [
+  { title: "Front-end development", text: "Websites and web apps in Vue, Nuxt and TypeScript, built to be fast and easy to maintain." },
+  { title: "AI features", text: "Building AI into real products at Reshift, from the prompt to the interface around it." },
+  { title: "Interaction and motion", text: "Animations, states and small details that make an interface feel finished." },
+  { title: "Websites for small businesses", text: "Sites the owner can keep up to date, like the one I run for De Elektraman." },
+];
+
+const interests = [
+  { title: "Hi-fi audio", text: "At Hifi Klubben I help people find their setup, from entry-level systems to high-end audiophile gear." },
+  { title: "Mechanical keyboards", text: "Custom builds, where I experiment with switches, layouts and keycaps." },
+  { title: "Gaming", text: "FPS for quick decisions, sandbox games for building, RPGs for the stories." },
+  { title: "Custom PCs", text: "Building my own machines, and a NAS at home that runs a dashboard I made." },
+];
+
+const facts = [
+  ["Now", "Reshift"],
+  ["Studying", "Software Engineering, HvA"],
+  ["Based in", "Amsterdam"],
+  ["From", "Poland"],
+];
+
+const history: {
+  title: string;
+  entries: { title: string; period: string; text: string; link?: { href: string; label: string } }[];
+}[] = [
+  {
+    title: "Experience",
+    entries: [
+      {
+        title: "Junior AI Developer · Reshift",
+        period: "Aug 2026 – now",
+        text: "AI features for the company behind Kieskeurig.nl, BesteProduct.nl and ID.nl, on a platform that processes millions of prices, reviews and stock updates a day.",
+      },
+      {
+        title: "Sales Assistant · Hifi Klubben",
+        period: "Mar 2024 – now",
+        text: "Advising customers on audio equipment at every budget, from entry-level systems to high-end setups.",
+      },
+      {
+        title: "Software Engineer · IRP/WOSI",
+        period: "Feb 2025 – Jan 2026",
+        text: "A web platform that shows houses on the market as 3D models, where buyers can explore the space and place their own furniture.",
+      },
+      {
+        title: "AGF Assistant · Albert Heijn",
+        period: "Sep 2023 – Mar 2024",
+        text: "Stock, displays and quality in the fresh produce department.",
+      },
+      {
+        title: "Sales Assistant · Pull&Bear",
+        period: "Apr 2023 – Aug 2023",
+        text: "Customer service and sales in a busy store, and opening, closing and cash handling as keyholder.",
+      },
+    ],
+  },
+  {
+    title: "Education",
+    entries: [
+      {
+        title: "Software Engineering · HvA",
+        period: "2022 – 2026",
+        text: "Bachelor's degree at the Amsterdam University of Applied Sciences, focused on modern web technologies, software architecture and user-centred design.",
+      },
+      {
+        title: "Dark Tech: Greep H1 · HvA",
+        period: "2026 – 2027",
+        text: "A half-year project for Tinker: a glove whose servo pulls the index finger by a cord, to find where a wearable turns from a tool into a control mechanism.",
+        link: { href: "https://greep-devlog.vercel.app", label: "Devlog (in Dutch)" },
+      },
+      {
+        title: "Dark Tech: ParallaxAI · HvA",
+        period: "2025 – 2026",
+        text: "A half-year project on AI literacy, comparing how Claude, Gemini and GPT-5 judge people from a single photo.",
+        link: { href: "https://github.com/borysbabas/ParallaxAI", label: "ParallaxAI on GitHub" },
+      },
+    ],
+  },
+];
+
+const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const showLoader = ref(true);
+const loaderEl = ref<HTMLElement>();
+const countEl = ref<HTMLElement>();
+const barEl = ref<HTMLElement>();
+const themeBtn = ref<HTMLButtonElement>();
+const nameEl = ref<HTMLElement>();
+const bigEl = ref<HTMLElement>();
+const contactEl = ref<HTMLElement>();
+const emailRow = ref<HTMLElement>();
+const emailEl = ref<HTMLElement>();
+const hintEl = ref<HTMLElement>();
+const liveEl = ref<HTMLElement>();
+const cursorEl = ref<HTMLElement>();
+const pillEl = ref<HTMLElement>();
+const previewEl = ref<HTMLElement>();
+const previewIn = ref<HTMLElement>();
+
+// Stack or list view for the work section
+const views = ["stack", "list"] as const;
+const view = ref<(typeof views)[number]>("stack");
+const setView = (v: (typeof views)[number]) => {
+  if (view.value === v) return;
+  const apply = () => {
+    view.value = v;
+    return nextTick();
+  };
+  if (document.startViewTransition && !prefersReducedMotion()) document.startViewTransition(apply);
+  else apply();
+};
+
+// Theme switch: the new theme grows out of the button as a circle. color-mode stores the choice
+// and mirrors it to <html data-theme>, which the stylesheet keys on.
+const colorMode = useColorMode();
+// The server cannot know the visitor's theme, so the label waits for hydration.
+const hydrated = ref(false);
+const themeLabel = computed(() =>
+  hydrated.value && colorMode.value === "dark" ? "Switch to light mode" : "Switch to dark mode",
 );
-
-/**
- * The original hands over the moment the flight starts, and takes back over the
- * moment it returns -- a straight swap rather than a crossfade.
- *
- * The two overlap exactly at progress zero: same photograph, same size, same
- * place. So there is nothing to fade between, and fading anyway is what put two
- * portraits on screen at once -- by the time the flyer reached full opacity it
- * had already moved off and shrunk, leaving a smaller copy visibly sitting on
- * top of this one.
- */
-const heroOpacity = computed(() => {
-  // No flight on this page -- reduced motion, or the navbar has not measured
-  // yet. Hiding the portrait here would simply delete it.
-  if (!flightActive.value) return 1;
-
-  return flightProgress.value > 0 ? 0 : 1;
-});
-
-// Every other page shows the navbar logo outright.
-onUnmounted(() => {
-  heroReady.value = false;
-  flightProgress.value = 1;
-  flightActive.value = false;
-});
-
-const { data: posts } = await useBlogPosts();
-
-const experiences = [
-  {
-    title: "Junior AI Developer",
-    company: "Reshift",
-    period: "August 2026 - Now",
-    icon: "/img/companies/reshift.png",
-    description:
-      "Building AI-driven features for the Netherlands' largest tech-focused media company, home to brands like Kieskeurig.nl, BesteProduct.nl and ID.nl. Working on applying AI to a platform that processes millions of product prices, reviews and stock updates every day.",
-    responsibilities: [
-      "Developing and integrating AI-powered features into existing web platforms",
-      "Working with large product, pricing and review datasets across Reshift's brands",
-      "Experimenting with language models to improve content and product comparison",
-      "Collaborating with the development team on scalable, maintainable solutions",
-      "Learning and growing through Reshift's work-and-learn programme",
-    ],
-  },
-  {
-    title: "Sales Assistant",
-    company: "Hifi Klubben",
-    period: "March 2024 - Now",
-    icon: "/img/companies/hfk.svg",
-    description:
-      "Sales advisor for audio equipment across all budget ranges, from entry-level systems to high-end audiophile setups. Focused on understanding client needs and delivering complete solutions for the best possible audio experience.",
-    responsibilities: [
-      "Advising customers on audio equipment across all price ranges",
-      "Communicating extensively with clients to understand their needs and preferences",
-      "Providing full solutions to audio-related problems and challenges",
-      "Demonstrating products and explaining technical specifications clearly",
-      "Building long-term relationships with audiophile community and clients",
-    ],
-  },
-  {
-    title: "Software Engineer",
-    company: "IRP/WOSI",
-    period: "February 2025 - January 2026",
-    icon: "/img/companies/irp.png",
-    description:
-      "Working with my team on developing an innovative web platform that displays 3D models of houses on the market. The application allows users to explore properties in incredible detail and even visualize their own furniture in the space.",
-    responsibilities: [
-      "Collaborating with the development team on the 3D house visualization platform",
-      "Implementing features for detailed 3D model viewing and interaction",
-      "Developing furniture placement functionality for virtual staging",
-      "Building responsive and performant web applications using modern frameworks",
-      "Contributing to technical discussions and code reviews",
-    ],
-  },
-  {
-    title: "AGF-assistant",
-    company: "Albert Heijn",
-    period: "September 2023 - March 2024",
-    icon: "/img/companies/ah.png",
-    description:
-      "Worked in the fresh produce department ensuring quality and customer satisfaction.",
-    responsibilities: [
-      "Managing fresh produce inventory and displays",
-      "Ensuring product quality and freshness standards",
-      "Assisting customers with product selection",
-      "Maintaining cleanliness and organization of department",
-      "Supporting team operations during peak hours",
-    ],
-  },
-  {
-    title: "Sales Assistant",
-    company: "Pull&Bear",
-    period: "April 2023 - August 2023",
-    icon: "/img/companies/pb.png",
-    description:
-      "Provided customer service and sales support in a fast-paced retail environment.",
-    responsibilities: [
-      "Assisting customers with fashion choices and sizing",
-      "Processing transactions and handling cash operations",
-      "Maintaining store presentation and visual merchandising",
-      "Managing fitting rooms and inventory restocking",
-      "Contributing to sales targets and customer satisfaction",
-      "Keycarrier responsibilities including opening/closing the store and cash handling",
-    ],
-  },
-];
-
-const educations = [
-  {
-    degree: "Software Engineering",
-    school: "Amsterdam University of Applied Sciences",
-    period: "2022 - 2026",
-    icon: "/img/schools/hva.png",
-    description:
-      "Pursuing a Bachelor's degree in Software Engineering, focusing on modern web technologies, software architecture, and user-centered design.",
-    focusAreas: [
-      "Full-stack web development with modern frameworks",
-      "Software architecture and design patterns",
-      "Database design and management",
-      "Agile development methodologies",
-      "User experience and interface design",
-      "DevOps and continuous integration/deployment",
-    ],
-  },
-  {
-    degree: "Dark Tech: Greep H1",
-    school: "Amsterdam University of Applied Sciences",
-    period: "2026 - 2027",
-    icon: "/img/schools/hva.png",
-    description:
-      "A half-year Dark Tech project for the client Tinker. Our team is building Greep H1: a glove with a servo that pulls the index finger by a cord, to explore when a wearable turns from a tool into a control mechanism. I document the design and development process week by week in a devlog.",
-    focusAreas: [
-      "Greep H1 prototype: a Raspberry Pi Pico and servo in a 3D-printed module on the forearm, with printed rings guiding the cord",
-      "Privacy analysis of a controlling wearable, tested on necessity, transparency and consent",
-      "Brand research for the product: tone of voice, naming and expo touchpoints",
-    ],
-    link: {
-      href: "https://greep-devlog.vercel.app",
-      label: "View the Greep H1 devlog (in Dutch)",
-    },
-  },
-  {
-    degree: "Dark Tech: ParallaxAI",
-    school: "Amsterdam University of Applied Sciences",
-    period: "2025 - 2026",
-    icon: "/img/schools/hva.png",
-    description:
-      "A half-year Dark Tech project on AI literacy. Our team built ParallaxAI: a photo booth where AI models make assumptions about you from a single photo, so everyday ChatGPT users see how confidently AI judges people without grounds, and how biased those judgments can be.",
-    focusAreas: [
-      "Vue 3 and TypeScript booth app with live face detection in the browser (TensorFlow.js)",
-      "FastAPI backend that sends the same photo and prompt to Claude, Gemini and GPT-5",
-      "Comparison of the models on variety, accuracy, response time, cost, robustness and bias",
-      "Advisory report on the dark and light sides of AI profiling, with advice on AI literacy",
-    ],
-    link: {
-      href: "https://github.com/borysbabas/ParallaxAI",
-      label: "View ParallaxAI on GitHub",
-    },
-  },
-];
-</script>
-
-<style scoped>
-/* `pre` keeps the spaces between words: each character is its own element, so
-   the whitespace would otherwise collapse. */
-.title-decode {
-  white-space: pre;
-}
-
-.title-decode__char {
-  display: inline-block;
-  transition:
-    filter 0.18s ease-out,
-    opacity 0.18s ease-out;
-}
-
-/* The blur rides along with the churn and clears as each position lands, so
-   the line sharpens from left to right behind the decode. */
-.is-scrambling {
-  filter: blur(3px);
-  opacity: 0.65;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .is-scrambling {
-    filter: none;
-    opacity: 1;
+const toggleTheme = () => {
+  const next = colorMode.value === "dark" ? "light" : "dark";
+  const apply = () => {
+    colorMode.preference = next;
+    return nextTick();
+  };
+  if (!document.startViewTransition || prefersReducedMotion() || !themeBtn.value) {
+    apply();
+    return;
   }
-}
-</style>
+  const r = themeBtn.value.getBoundingClientRect();
+  const x = r.left + r.width / 2;
+  const y = r.top + r.height / 2;
+  const end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+  document.startViewTransition(apply).ready.then(() => {
+    document.documentElement.animate(
+      { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${end}px at ${x}px ${y}px)`] },
+      { duration: 550, easing: "cubic-bezier(0.23, 1, 0.32, 1)", pseudoElement: "::view-transition-new(root)" },
+    );
+  });
+};
+
+// Hover to select, click to copy: the whole address gets selected for real, so Ctrl+C works too
+let copyTimer: ReturnType<typeof setTimeout> | undefined;
+const copyEmail = () => {
+  const email = emailEl.value!;
+  const row = emailRow.value!;
+  const hint = hintEl.value!;
+  const live = liveEl.value!;
+  try {
+    const range = document.createRange();
+    range.selectNodeContents(email);
+    const sel = window.getSelection();
+    sel?.removeAllRanges();
+    sel?.addRange(range);
+  } catch {}
+  const done = () => {
+    row.classList.add("done");
+    hint.textContent = "Copied";
+    live.textContent = "Email address copied";
+    clearTimeout(copyTimer);
+    copyTimer = setTimeout(() => {
+      row.classList.remove("done");
+      hint.textContent = "Click to copy";
+      live.textContent = "Copies the email address";
+      const sel = window.getSelection();
+      if (sel?.anchorNode && email.contains(sel.anchorNode)) sel.removeAllRanges();
+    }, 2200);
+  };
+  const fail = () => {
+    row.classList.add("done");
+    hint.textContent = "Selected, press Ctrl+C";
+  };
+  try {
+    navigator.clipboard.writeText(EMAIL).then(done, fail);
+  } catch {
+    fail();
+  }
+};
+
+// Everything below drives the DOM directly, as the design does; these stop it when the page goes.
+let alive = true;
+const cleanups: (() => void)[] = [];
+
+onMounted(() => {
+  hydrated.value = true;
+  const root = document.documentElement;
+  const reduce = prefersReducedMotion();
+  const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const listeners = new AbortController();
+  const signal = listeners.signal;
+  cleanups.push(() => listeners.abort());
+
+  root.classList.add("js");
+  if (!reduce) {
+    root.classList.add("loading");
+    if ("IntersectionObserver" in window) root.classList.add("rv");
+  }
+
+  const big = bigEl.value!;
+  const name = nameEl.value!;
+
+  // Offset each word's fill by its position in the line, so lines sweep left to right
+  const sweep = () => {
+    const box = big.getBoundingClientRect();
+    big.querySelectorAll<HTMLElement>(".w").forEach((w) => {
+      const s = 14 + ((w.getBoundingClientRect().left - box.left) / Math.max(1, box.width)) * 14;
+      w.style.setProperty("animation-range-start", `cover ${s.toFixed(1)}%`);
+      w.style.setProperty("animation-range-end", `cover ${(s + 9).toFixed(1)}%`);
+    });
+  };
+
+  // Letters get bolder as the cursor comes close. Each letter sits in a box of fixed width,
+  // measured once at rest, so heavier letters never push the line around.
+  let px = -9999;
+  let py = -9999;
+  const weighties: { measure: () => void; kick: () => void }[] = [];
+  const weighty = (
+    scope: HTMLElement,
+    letters: HTMLElement[],
+    o: { base: number; max: number; wdth: number; squeeze: number; radius: number },
+  ) => {
+    let boxes: { w: number; cx: number; cy: number }[] = [];
+    const cur = letters.map(() => 0);
+    let running = false;
+    const setW = (el: HTMLElement, k: number) => {
+      (el.firstElementChild as HTMLElement).style.fontVariationSettings =
+        `"opsz" 96, "wdth" ${(o.wdth - k * o.squeeze).toFixed(1)}, "wght" ${Math.round(o.base + k * (o.max - o.base))}`;
+    };
+    const measure = () => {
+      letters.forEach((el, i) => {
+        cur[i] = 0;
+        setW(el, 0);
+        el.style.width = "";
+      });
+      // offsetLeft/Top ignore transforms, so the entrance animation can't throw the positions off
+      boxes = letters.map((el) => ({
+        w: el.getBoundingClientRect().width,
+        cx: el.offsetLeft + el.offsetWidth / 2,
+        cy: el.offsetTop + el.offsetHeight / 2,
+      }));
+      letters.forEach((el, i) => (el.style.width = `${boxes[i]!.w}px`));
+    };
+    const frame = () => {
+      if (!alive) return;
+      const hb = scope.getBoundingClientRect();
+      let moving = false;
+      letters.forEach((el, i) => {
+        const b = boxes[i]!;
+        const d = Math.hypot(px - (hb.left + b.cx), py - (hb.top + b.cy));
+        let k = Math.max(0, 1 - d / o.radius);
+        k = k * k * (3 - 2 * k);
+        cur[i]! += (k - cur[i]!) * 0.18;
+        if (Math.abs(k - cur[i]!) > 0.002) moving = true;
+        setW(el, cur[i]!);
+      });
+      if (moving) requestAnimationFrame(frame);
+      else running = false;
+    };
+    weighties.push({
+      measure,
+      kick: () => {
+        if (!running && boxes.length) {
+          running = true;
+          requestAnimationFrame(frame);
+        }
+      },
+    });
+  };
+
+  if (fine && !reduce) {
+    weighty(contactEl.value!, Array.from(contactEl.value!.querySelectorAll<HTMLElement>(".lt")), {
+      base: 400, max: 800, wdth: 85, squeeze: 10, radius: 300,
+    });
+    name.querySelectorAll<HTMLElement>(".line").forEach((line) => {
+      weighty(line, Array.from(line.querySelectorAll<HTMLElement>(".ch")), {
+        base: 600, max: 800, wdth: 85, squeeze: 9, radius: 380,
+      });
+    });
+    const kickAll = () => weighties.forEach((w) => w.kick());
+    window.addEventListener("pointermove", (e) => { px = e.clientX; py = e.clientY; kickAll(); }, { passive: true, signal });
+    document.addEventListener("pointerleave", () => { px = py = -9999; kickAll(); }, { signal });
+  }
+
+  const layout = () => {
+    sweep();
+    weighties.forEach((w) => w.measure());
+  };
+  layout();
+  document.fonts?.ready.then(() => alive && layout());
+  let resizeTimer: ReturnType<typeof setTimeout> | undefined;
+  window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(layout, 150); }, { signal });
+  cleanups.push(() => clearTimeout(resizeTimer));
+
+  // The email decodes once when it scrolls into view
+  const email = emailEl.value!;
+  if (!reduce && "IntersectionObserver" in window) {
+    const glyphs = "abcdefghijklmnopqrstuvwxyz0123456789@.";
+    const io = new IntersectionObserver((entries) => {
+      if (!entries[0]?.isIntersecting) return;
+      io.disconnect();
+      const start = performance.now();
+      const step = (now: number) => {
+        const p = Math.min(1, (now - start) / 700);
+        const fixed = Math.floor(p * EMAIL.length);
+        let out = "";
+        for (let i = 0; i < EMAIL.length; i++) {
+          out += i < fixed || EMAIL[i] === "@" || EMAIL[i] === "." ? EMAIL[i] : glyphs[(Math.random() * glyphs.length) | 0];
+        }
+        email.textContent = out;
+        if (p < 1 && alive) requestAnimationFrame(step);
+        else email.textContent = EMAIL;
+      };
+      step(start);
+    }, { threshold: 0.8 });
+    io.observe(email);
+    cleanups.push(() => io.disconnect());
+  }
+
+  // Preloader: count up with real progress (fonts, images, page load), then lift away and play the entrance
+  const startReveals = () => {
+    if (reduce || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add("in");
+          io.unobserve(e.target);
+        }
+      });
+    }, { rootMargin: "0px 0px -8% 0px" });
+    document.querySelectorAll("[data-reveal]").forEach((el) => io.observe(el));
+    io.observe(big);
+    cleanups.push(() => io.disconnect());
+  };
+  const enter = () => {
+    if (!alive) return;
+    root.classList.remove("loading");
+    root.classList.add("ready", "first");
+    setTimeout(() => root.classList.remove("first"), 1200);
+    setTimeout(() => name.classList.add("loaded"), 1500);
+    startReveals();
+  };
+  if (reduce) {
+    showLoader.value = false;
+    root.classList.add("ready");
+    name.classList.add("loaded");
+  } else {
+    const loader = loaderEl.value!;
+    const count = countEl.value!;
+    const bar = barEl.value!;
+    let seen = false;
+    try {
+      seen = sessionStorage.getItem("bb-seen") === "1";
+      sessionStorage.setItem("bb-seen", "1");
+    } catch {}
+    const tasks: Promise<unknown>[] = [];
+    if (document.fonts?.ready) tasks.push(document.fonts.ready);
+    document.querySelectorAll("img").forEach((img) => {
+      tasks.push(
+        img.complete
+          ? Promise.resolve()
+          : new Promise((res) => {
+              img.addEventListener("load", res, { once: true });
+              img.addEventListener("error", res, { once: true });
+            }),
+      );
+    });
+    tasks.push(
+      new Promise((res) => {
+        if (document.readyState === "complete") res(undefined);
+        else window.addEventListener("load", res, { once: true });
+      }),
+    );
+    let doneCount = 0;
+    let shown = 0;
+    let finished = false;
+    const total = tasks.length;
+    const t0 = performance.now();
+    const minTime = seen ? 250 : 1300;
+    const hardStop = 5000;
+    tasks.forEach((p) => p.then(() => doneCount++));
+    const finish = () => {
+      if (finished || !alive) return;
+      finished = true;
+      count.textContent = "100";
+      bar.style.transform = "scaleX(1)";
+      loader.classList.add("leaving");
+      setTimeout(enter, seen ? 150 : 280);
+      loader.addEventListener("animationend", (e) => {
+        if (e.target === loader) showLoader.value = false;
+      });
+    };
+    const tick = (now: number) => {
+      if (finished || !alive) return;
+      const elapsed = now - t0;
+      let target = Math.min(doneCount / total, Math.min(1, elapsed / minTime)) * 100;
+      if (elapsed > hardStop) target = 100;
+      shown += (target - shown) * 0.12;
+      if (target - shown < 0.6) shown = target;
+      count.textContent = `00${Math.floor(shown)}`.slice(-3);
+      bar.style.transform = `scaleX(${(shown / 100).toFixed(3)})`;
+      if (shown >= 100) {
+        setTimeout(finish, seen ? 0 : 180);
+        return;
+      }
+      requestAnimationFrame(tick);
+    };
+    tick(t0);
+  }
+
+  // Pointer-driven details: a pill that follows the cursor over project images,
+  // an image preview in list view, and a dot that snaps onto links as corner brackets
+  if (fine && !reduce) {
+    const pill = pillEl.value!;
+    const preview = previewEl.value!;
+    const previewInner = previewIn.value!;
+    const cur = cursorEl.value!;
+    const medias = document.querySelectorAll("#stack .media");
+    const targets = ".brand, .nav ul a, #theme, .seg button, .email-copy, .links a, .card .more, .history li a";
+    let mx = -9999;
+    let my = -9999;
+    let overMedia = false;
+    let overRow = false;
+    let active: Element | null = null;
+    let first = true;
+    const P = { x: 0, y: 0 };
+    const V = { x: 0, y: 0 };
+    const S = { x: 0, y: 0, w: 12, h: 12 };
+    let last = performance.now();
+    const ease = (from: number, to: number, rate: number, dt: number) => from + (to - from) * (1 - Math.pow(1 - rate, dt));
+
+    root.classList.add("has-cursor");
+    window.addEventListener("pointermove", (e) => {
+      mx = e.clientX;
+      my = e.clientY;
+      if (first) {
+        S.x = mx;
+        S.y = my;
+        first = false;
+      }
+      cur.classList.add("live");
+    }, { passive: true, signal });
+    document.addEventListener("pointerover", (e) => {
+      const el = e.target as Element;
+      overMedia = !!el.closest?.("#stack .media");
+      pill.classList.toggle("show", overMedia);
+      const row = el.closest?.<HTMLElement>(".row");
+      if (row) {
+        const src = medias[Number(row.dataset.for)];
+        if (src && previewInner.dataset.for !== row.dataset.for) {
+          previewInner.replaceChildren(src.cloneNode(true));
+          previewInner.dataset.for = row.dataset.for;
+        }
+      }
+      overRow = !!row;
+      preview.classList.toggle("show", overRow);
+      active = el.closest?.(targets) ?? null;
+      cur.classList.toggle("on", !!active);
+    }, { signal });
+    document.addEventListener("pointerleave", () => {
+      cur.classList.remove("live");
+      active = null;
+    }, { signal });
+
+    // Springs for position and size, so the pointer can be redirected mid-flight
+    const loop = (now: number) => {
+      if (!alive) return;
+      const dt = Math.min(4, (now - last) / 16.667);
+      last = now;
+      let tx = mx;
+      let ty = my;
+      let tw = 12;
+      let th = 12;
+      if (active?.isConnected) {
+        const r = active.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        tx = cx + (mx - cx) * 0.12;
+        ty = cy + (my - cy) * 0.12;
+        tw = r.width + 16;
+        th = r.height + 12;
+      }
+      S.x = ease(S.x, tx, 0.38, dt);
+      S.y = ease(S.y, ty, 0.38, dt);
+      S.w = ease(S.w, tw, 0.26, dt);
+      S.h = ease(S.h, th, 0.26, dt);
+      cur.style.width = `${S.w.toFixed(1)}px`;
+      cur.style.height = `${S.h.toFixed(1)}px`;
+      cur.style.transform = `translate3d(${(S.x - S.w / 2).toFixed(1)}px,${(S.y - S.h / 2).toFixed(1)}px,0)`;
+      cur.classList.toggle("hide", overMedia || overRow);
+
+      P.x += (mx - P.x) * 0.22;
+      P.y += (my - P.y) * 0.22;
+      V.x += (mx - V.x) * 0.12;
+      V.y += (my - V.y) * 0.12;
+      pill.style.transform = `translate3d(${P.x - pill.offsetWidth / 2}px,${P.y - pill.offsetHeight / 2}px,0)`;
+      preview.style.transform = `translate3d(${V.x + 24}px,${V.y - 90}px,0) rotate(${Math.max(-6, Math.min(6, (mx - V.x) * 0.04))}deg)`;
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  }
+});
+
+onBeforeUnmount(() => {
+  alive = false;
+  clearTimeout(copyTimer);
+  cleanups.forEach((fn) => fn());
+  // These live on <html>, outside this page, and would otherwise carry over to the next one
+  document.documentElement.classList.remove("js", "loading", "rv", "ready", "first", "has-cursor");
+});
+</script>

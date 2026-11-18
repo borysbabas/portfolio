@@ -170,9 +170,9 @@ const handleEmailClick = () => {
 const navigationLinks = [
   {path: "/", label: "Home"},
   {path: "/blog", label: "Blog"},
-  {path: "/projects", label: "Projects"},
-  {path: "/interests", label: "Interests"},
-  {path: "/contact", label: "Contact"},
+  {path: "/#work", label: "Work"},
+  {path: "/#about", label: "About"},
+  {path: "/#contact", label: "Contact"},
 ];
 
 const legalLinks = [
