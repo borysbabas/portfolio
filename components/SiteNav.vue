@@ -93,11 +93,6 @@ const toggleTheme = () => {
 }
 .lang a:hover, .lang a[aria-current] { color: var(--ink); }
 .lang a[aria-current] { text-decoration: underline; text-underline-offset: 0.35em; }
-/* Phones: the brand gives way so links, languages and the theme switch fit on one line */
-@media (max-width: 560px) {
-  .brand { display: none; }
-  .nav ul a { padding: 0 0.4rem; font-size: 0.875rem; }
-}
 </style>
 
 <!-- Not scoped: these hang off classes on <html>. Written as :global(.ready) .lang in the scoped block,
@@ -105,6 +100,17 @@ const toggleTheme = () => {
      and a transform there makes every position: fixed element scroll with the page. -->
 <style>
 /* The home page's entrance fades the nav in; the language switch comes in with it */
+/* Phones: not everything fits on one line. The home page drops the brand, since the hero shows the name;
+   other pages drop the section links instead, so the brand is there to take you home */
+@media (max-width: 560px) {
+  .nav .nav-right { flex: 1; justify-content: flex-end; }
+  .nav .nav-right nav { margin-right: auto; }
+  .nav .nav-right ul { margin-left: -0.4rem; }
+  .nav .nav-right ul a { padding: 0 0.4rem; font-size: 0.875rem; }
+  .home .nav .brand { display: none; }
+  body:not(.home) .nav nav { display: none; }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .js .nav .lang { opacity: 0; }
   .ready .nav .lang { animation: fade 700ms var(--ease-out) both; animation-delay: 350ms; }
