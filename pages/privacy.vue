@@ -13,7 +13,7 @@ useSeoMeta({
       <div class="mx-auto max-w-4xl">
         <div class="mb-8 md:mb-12">
           <h1
-            class="gradient w-fit pb-3 text-3xl font-bold md:mb-4 md:text-4xl lg:text-5xl"
+            class="w-fit pb-3 text-3xl font-bold md:mb-4 md:text-4xl lg:text-5xl"
           >
             Privacy Policy
           </h1>
@@ -22,7 +22,7 @@ useSeoMeta({
           </p>
         </div>
 
-        <div class="prose prose-invert max-w-none space-y-6 md:space-y-8">
+        <div class="max-w-none space-y-6 md:space-y-8">
           <section class="bg-background-light w-fit rounded-lg p-4 md:p-6">
             <h2
               class="text-text-primary mb-3 w-fit text-xl font-semibold md:mb-4 md:text-2xl"
@@ -234,7 +234,7 @@ useSeoMeta({
               <p>
                 <strong>Email: </strong>
                 <a
-                  class="social-link underline"
+                  class="underline"
                   href="mailto:info@borysbabas.dev"
                   >info@borysbabas.dev</a
                 >
@@ -242,7 +242,7 @@ useSeoMeta({
               <p>
                 <strong>GitHub: </strong>
                 <a
-                  class="social-link underline"
+                  class="underline"
                   href="https://github.com/borysbabas"
                   rel="noopener noreferrer"
                   target="_blank"

@@ -6,32 +6,7 @@
       <span ref="barEl" class="loader-bar"></span>
     </div>
 
-    <header class="nav">
-      <a class="brand" href="#top">Borys Babas</a>
-      <div class="nav-right">
-        <nav aria-label="Main">
-          <ul>
-            <li><a href="#work">Work</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact</a></li>
-          </ul>
-        </nav>
-        <button
-          id="theme"
-          ref="themeBtn"
-          :aria-label="themeLabel"
-          class="theme-btn"
-          type="button"
-          @click="toggleTheme"
-        >
-          <svg aria-hidden="true" fill="none" height="18" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" width="18">
-            <circle cx="12" cy="12" r="8"></circle>
-            <path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"></path>
-          </svg>
-        </button>
-      </div>
-      <span aria-hidden="true" class="progress"></span>
-    </header>
+    <SiteNav />
 
     <main id="top">
       <section aria-label="Introduction" class="hero wrap">
@@ -77,7 +52,7 @@
           <a href="https://github.com/borysbabas">GitHub</a>.
         </p>
         <ol id="list" :hidden="view !== 'list'" class="list">
-          <li v-for="(p, i) in projects" :key="p.repo" :data-for="i" class="row">
+          <li v-for="(p, i) in projects" :key="p.repo" :data-for="i" class="row" data-hide-cursor>
             <a :href="p.site || p.repo">
               <span class="n">{{ num(i) }}</span><span class="t">{{ p.title }}</span><span class="k">{{ p.kind }}</span><span aria-hidden="true" class="arrow">→</span>
             </a>
@@ -100,9 +75,10 @@
                 <a :href="p.repo" class="more">GitHub <span aria-hidden="true">→</span></a>
               </div>
             </div>
-            <div v-if="p.image" class="media">
+            <!-- Same destination as the links beside it, so it stays out of the tab order and the accessibility tree -->
+            <a v-if="p.image" :href="p.site || p.repo" aria-hidden="true" class="media" data-hide-cursor tabindex="-1">
               <img :src="p.image" alt="" decoding="async" loading="lazy" />
-            </div>
+            </a>
           </article>
         </div>
       </section>
@@ -209,7 +185,7 @@
 
       <footer class="wrap">
         <!-- No reveal here: the footer sits inside the bottom margin the reveal observer ignores, so it would never show -->
-        <span class="mono">© {{ year }} Borys Babas</span>
+        <span class="mono">© {{ year }} borysbabas<span class="dev-mark">.dev</span></span>
         <!-- Plain links: a full page load leaves this page's stylesheet behind -->
         <ul class="links">
           <li><a href="/privacy">Privacy</a></li>
@@ -218,7 +194,9 @@
       </footer>
     </div>
 
+    <div ref="pillEl" aria-hidden="true" class="cursor-pill"><span class="in">View project</span></div>
     <div ref="previewEl" aria-hidden="true" class="preview"><div ref="previewIn" class="in"></div></div>
+    <SiteCursor />
     <SpeedInsights />
   </div>
 </template>
@@ -227,7 +205,6 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import { SpeedInsights } from "@vercel/speed-insights/vue";
 import type { PublicRepo } from "~/server/api/github/repos.get";
-import "~/assets/css/home.css";
 
 definePageMeta({ layout: false });
 
@@ -239,14 +216,6 @@ const HTML_CLASSES = `(function(){var d=document.documentElement,r=matchMedia("(
 
 useHead({
   bodyAttrs: { class: "home" },
-  link: [
-    { rel: "preconnect", href: "https://fonts.googleapis.com" },
-    { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
-    {
-      rel: "stylesheet",
-      href: "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist:wght@400..600&family=Geist+Mono:wght@400;500&display=swap",
-    },
-  ],
   script: [{ innerHTML: HTML_CLASSES, tagPosition: "bodyOpen" }],
 });
 
@@ -395,7 +364,6 @@ const showLoader = ref(true);
 const loaderEl = ref<HTMLElement>();
 const countEl = ref<HTMLElement>();
 const barEl = ref<HTMLElement>();
-const themeBtn = ref<HTMLButtonElement>();
 const nameEl = ref<HTMLElement>();
 const bigEl = ref<HTMLElement>();
 const contactEl = ref<HTMLElement>();
@@ -403,6 +371,7 @@ const emailRow = ref<HTMLElement>();
 const emailEl = ref<HTMLElement>();
 const hintEl = ref<HTMLElement>();
 const liveEl = ref<HTMLElement>();
+const pillEl = ref<HTMLElement>();
 const previewEl = ref<HTMLElement>();
 const previewIn = ref<HTMLElement>();
 
@@ -417,36 +386,6 @@ const setView = (v: (typeof views)[number]) => {
   };
   if (document.startViewTransition && !prefersReducedMotion()) document.startViewTransition(apply);
   else apply();
-};
-
-// Theme switch: the new theme grows out of the button as a circle. color-mode stores the choice
-// and mirrors it to <html data-theme>, which the stylesheet keys on.
-const colorMode = useColorMode();
-// The server cannot know the visitor's theme, so the label waits for hydration.
-const hydrated = ref(false);
-const themeLabel = computed(() =>
-  hydrated.value && colorMode.value === "dark" ? "Switch to light mode" : "Switch to dark mode",
-);
-const toggleTheme = () => {
-  const next = colorMode.value === "dark" ? "light" : "dark";
-  const apply = () => {
-    colorMode.preference = next;
-    return nextTick();
-  };
-  if (!document.startViewTransition || prefersReducedMotion() || !themeBtn.value) {
-    apply();
-    return;
-  }
-  const r = themeBtn.value.getBoundingClientRect();
-  const x = r.left + r.width / 2;
-  const y = r.top + r.height / 2;
-  const end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-  document.startViewTransition(apply).ready.then(() => {
-    document.documentElement.animate(
-      { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${end}px at ${x}px ${y}px)`] },
-      { duration: 550, easing: "cubic-bezier(0.23, 1, 0.32, 1)", pseudoElement: "::view-transition-new(root)" },
-    );
-  });
 };
 
 // Hover to select, click to copy: the whole address gets selected for real, so Ctrl+C works too
@@ -492,7 +431,6 @@ let alive = true;
 const cleanups: (() => void)[] = [];
 
 onMounted(() => {
-  hydrated.value = true;
   const root = document.documentElement;
   const reduce = prefersReducedMotion();
   const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
@@ -718,14 +656,15 @@ onMounted(() => {
     tick(t0);
   }
 
-  // List view: the project's image follows the cursor while hovering its row
+  // A pill that follows the cursor over project images, and the image preview in list view
   if (fine && !reduce) {
+    const pill = pillEl.value!;
     const preview = previewEl.value!;
     const previewInner = previewIn.value!;
     const cards = document.querySelectorAll("#stack .card");
     let mx = -9999;
     let my = -9999;
-    let overRow = false;
+    const P = { x: 0, y: 0 };
     const V = { x: 0, y: 0 };
 
     window.addEventListener("pointermove", (e) => {
@@ -733,23 +672,25 @@ onMounted(() => {
       my = e.clientY;
     }, { passive: true, signal });
     document.addEventListener("pointerover", (e) => {
-      const row = (e.target as Element).closest?.<HTMLElement>(".row");
+      const el = e.target as Element;
+      pill.classList.toggle("show", !!el.closest?.("#stack .media"));
+      const row = el.closest?.<HTMLElement>(".row");
       const src = row && cards[Number(row.dataset.for)]?.querySelector(".media");
       if (src && previewInner.dataset.for !== row.dataset.for) {
         previewInner.replaceChildren(src.cloneNode(true));
         previewInner.dataset.for = row.dataset.for;
       }
-      overRow = !!src;
-      preview.classList.toggle("show", overRow);
+      preview.classList.toggle("show", !!src);
     }, { signal });
 
     const loop = () => {
       if (!alive) return;
+      P.x += (mx - P.x) * 0.22;
+      P.y += (my - P.y) * 0.22;
       V.x += (mx - V.x) * 0.12;
       V.y += (my - V.y) * 0.12;
-      if (overRow) {
-        preview.style.transform = `translate3d(${V.x + 24}px,${V.y - 90}px,0) rotate(${Math.max(-6, Math.min(6, (mx - V.x) * 0.04))}deg)`;
-      }
+      pill.style.transform = `translate3d(${P.x - pill.offsetWidth / 2}px,${P.y - pill.offsetHeight / 2}px,0)`;
+      preview.style.transform = `translate3d(${V.x + 24}px,${V.y - 90}px,0) rotate(${Math.max(-6, Math.min(6, (mx - V.x) * 0.04))}deg)`;
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
