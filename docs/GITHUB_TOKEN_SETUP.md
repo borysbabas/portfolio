@@ -1,6 +1,6 @@
 # GitHub Token Setup Guide
 
-The projects page at `/projects` lists public repositories for the `borysbabas` GitHub account, along with a
+The Selected work section on the home page lists public repositories for the `borysbabas` GitHub account, along with a
 thumbnail, title and description extracted from each repository's README.
 
 Configuring a token is **optional but strongly recommended**. Without one the site still works, but it shares
@@ -23,7 +23,7 @@ the anonymous GitHub rate limit with everyone else on the same egress IP.
 | With token | 5,000 | Per token |
 
 On a serverless host many deployments share an outbound IP, so the anonymous 60/hour budget can be exhausted
-by traffic that has nothing to do with this site. The result is a projects page that renders its error state.
+by traffic that has nothing to do with this site. The result is a Selected work section that shows its fallback message.
 
 ## Creating the token
 
@@ -103,7 +103,7 @@ GitHub requests in total, not a couple of dozen *per visitor*.
 
 ## Troubleshooting
 
-**The projects page shows "Failed to load projects."**
+**Selected work says the projects didn't load**
 
 Check the server logs. The request to `/api/github/repos` is where the failure will surface, not the browser
 console.
