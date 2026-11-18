@@ -10,7 +10,7 @@
 
     <main id="top">
       <section aria-label="Introduction" class="hero wrap">
-        <p class="mono">Junior AI Developer · Amsterdam</p>
+        <p class="mono">{{ t.heroTag }}</p>
         <h1 ref="nameEl" aria-label="Borys Babas" class="name">
           <span v-for="(line, li) in nameLines" :key="li" :class="`line l${li + 1}`" aria-hidden="true">
             <span v-for="ch in line" :key="ch.i" :style="{ '--i': ch.i }" class="ch"><span class="chi">{{ ch.c }}</span></span>
@@ -21,7 +21,7 @@
             <span class="sr-only">{{ heroLine }}</span>
             <template v-for="(w, i) in heroWords" :key="i"><span aria-hidden="true" class="hw"><span :style="{ '--wi': i }">{{ w }}</span></span>{{ i < heroWords.length - 1 ? " " : "" }}</template>
           </p>
-          <span class="mono scroll-cue">Scroll</span>
+          <span class="mono scroll-cue">{{ t.scroll }}</span>
         </div>
       </section>
 
@@ -34,8 +34,8 @@
 
       <section id="work" aria-labelledby="work-h" class="wrap">
         <div class="section-head">
-          <h2 id="work-h" data-reveal>Selected work</h2>
-          <div aria-label="Show projects as" class="seg" data-reveal role="group" style="--d: 1">
+          <h2 id="work-h" data-reveal>{{ t.work.title }}</h2>
+          <div :aria-label="t.work.showAs" class="seg" data-reveal role="group" style="--d: 1">
             <button
               v-for="v in views"
               :key="v"
@@ -43,18 +43,18 @@
               type="button"
               @click="setView(v)"
             >
-              {{ v === "stack" ? "Stack" : "List" }}
+              {{ v === "stack" ? t.work.stack : t.work.list }}
             </button>
           </div>
         </div>
         <p v-if="!projects.length" class="empty">
-          My projects didn't load just now. They're all on
-          <a href="https://github.com/borysbabas">GitHub</a>.
+          {{ t.work.emptyBefore }}
+          <a href="https://github.com/borysbabas">GitHub</a>{{ t.work.emptyAfter }}
         </p>
         <ol id="list" :hidden="view !== 'list'" class="list">
           <li v-for="(p, i) in projects" :key="p.repo" :data-for="i" class="row" data-hide-cursor>
             <a :href="p.site || p.repo">
-              <span class="n">{{ num(i) }}</span><span class="t">{{ p.title }}</span><span class="k">{{ p.kind }}</span><span aria-hidden="true" class="arrow">→</span>
+              <span class="n">{{ num(i) }}</span><span class="t">{{ p.title }}</span><span class="k">{{ t.work.kinds[p.kind] }}</span><span aria-hidden="true" class="arrow">→</span>
             </a>
           </li>
         </ol>
@@ -66,12 +66,12 @@
             :style="cardStyle(i)"
           >
             <div class="card-text">
-              <span class="num">{{ num(i) }} · {{ p.kind }}</span>
+              <span class="num">{{ num(i) }} · {{ t.work.kinds[p.kind] }}</span>
               <h3>{{ p.title }}</h3>
               <p>{{ p.text }}</p>
               <div class="tags"><span v-for="t in p.tags" :key="t">{{ t }}</span></div>
               <div class="links-row">
-                <a v-if="p.site" :href="p.site" class="more">Visit site <span aria-hidden="true">→</span></a>
+                <a v-if="p.site" :href="p.site" class="more">{{ t.work.visitSite }} <span aria-hidden="true">→</span></a>
                 <a :href="p.repo" class="more">GitHub <span aria-hidden="true">→</span></a>
               </div>
             </div>
@@ -86,10 +86,10 @@
       <section aria-labelledby="strip-h" class="strip">
         <div class="strip-pin">
           <div class="strip-head section-head">
-            <h2 id="strip-h" data-reveal>What I work with</h2>
+            <h2 id="strip-h" data-reveal>{{ t.stackTitle }}</h2>
           </div>
           <div class="track">
-            <div v-for="(panel, i) in stack" :key="panel.title" :style="{ '--d': i + 1 }" class="panel" data-reveal>
+            <div v-for="(panel, i) in t.stack" :key="panel.title" :style="{ '--d': i + 1 }" class="panel" data-reveal>
               <span class="k">{{ num(i) }}</span>
               <div>
                 <h3>{{ panel.title }}</h3>
@@ -102,11 +102,11 @@
 
       <section id="about" aria-labelledby="about-h" class="about wrap">
         <div>
-          <h2 id="about-h" data-reveal>About</h2>
-          <p data-reveal style="--d: 1">I'm Borys, from Poland and based in Amsterdam.</p>
-          <h3 class="mono interests-h" data-reveal>Interests</h3>
+          <h2 id="about-h" data-reveal>{{ t.about.title }}</h2>
+          <p data-reveal style="--d: 1">{{ t.about.intro }}</p>
+          <h3 class="mono interests-h" data-reveal>{{ t.about.interestsTitle }}</h3>
           <ul class="interests">
-            <li v-for="(item, i) in interests" :key="item.title" :style="{ '--d': i }" data-reveal>
+            <li v-for="(item, i) in t.about.interests" :key="item.title" :style="{ '--d': i }" data-reveal>
               <h4>{{ item.title }}</h4>
               <p>{{ item.text }}</p>
             </li>
@@ -116,7 +116,7 @@
           <figure class="portrait">
             <div class="ph">
               <img
-                alt="Borys mid-jump off a quad bike in front of a row of palm trees under a cloudy sky"
+                :alt="t.about.portraitAlt"
                 height="1024"
                 src="/img/about.jpg"
                 width="768"
@@ -124,16 +124,16 @@
             </div>
           </figure>
           <dl class="facts">
-            <div v-for="(fact, i) in facts" :key="fact[0]" :style="{ '--d': i }" data-reveal>
-              <dt>{{ fact[0] }}</dt>
-              <dd>{{ fact[1] }}</dd>
+            <div v-for="(fact, i) in t.about.facts" :key="fact.label" :style="{ '--d': i }" data-reveal>
+              <dt>{{ fact.label }}</dt>
+              <dd>{{ fact.value }}</dd>
             </div>
           </dl>
         </div>
       </section>
 
-      <section aria-label="Experience and education" class="history wrap">
-        <div v-for="group in history" :key="group.title">
+      <section :aria-label="t.historyLabel" class="history wrap">
+        <div v-for="group in t.history" :key="group.title">
           <h2 data-reveal>{{ group.title }}</h2>
           <ol>
             <li v-for="(entry, i) in group.entries" :key="entry.title" :style="{ '--d': i }" data-reveal>
@@ -170,15 +170,15 @@
                   <path d="M5 12.5l4.5 4.5L19 7.5"></path>
                 </svg>
               </span>
-              <span ref="hintEl">Click to copy</span>
+              <span ref="hintEl">{{ t.contact.copyHint }}</span>
             </span>
-            <span id="copy-label" ref="liveEl" aria-live="polite" class="sr-only">Copies the email address</span>
+            <span id="copy-label" ref="liveEl" aria-live="polite" class="sr-only">{{ t.contact.copyLabel }}</span>
           </div>
           <ul class="links">
             <li data-reveal style="--d: 1"><a href="https://github.com/borysbabas">GitHub</a></li>
             <li data-reveal style="--d: 2"><a href="https://www.linkedin.com/in/borysbabas/">LinkedIn</a></li>
             <li data-reveal style="--d: 3"><a href="https://www.instagram.com/borysbabas/">Instagram</a></li>
-            <li data-reveal style="--d: 4"><a download="Borys_CV.pdf" href="/assets/borys-cv.pdf">Download CV</a></li>
+            <li data-reveal style="--d: 4"><a download="Borys_CV.pdf" href="/assets/borys-cv.pdf">{{ t.contact.cv }}</a></li>
           </ul>
         </div>
       </section>
@@ -188,13 +188,13 @@
         <span class="mono">© {{ year }} borysbabas<span class="dev-mark">.dev</span></span>
         <!-- Plain links: a full page load leaves this page's stylesheet behind -->
         <ul class="links">
-          <li><a href="/privacy">Privacy</a></li>
-          <li><a href="/terms">Terms</a></li>
+          <li><a :href="localePath('/privacy')">{{ text.footer.privacy }}</a></li>
+          <li><a :href="localePath('/terms')">{{ text.footer.terms }}</a></li>
         </ul>
       </footer>
     </div>
 
-    <div ref="pillEl" aria-hidden="true" class="cursor-pill"><span class="in">View project</span></div>
+    <div ref="pillEl" aria-hidden="true" class="cursor-pill"><span class="in">{{ t.work.viewProject }}</span></div>
     <div ref="previewEl" aria-hidden="true" class="preview"><div ref="previewIn" class="in"></div></div>
     <SiteCursor />
     <SpeedInsights />
@@ -242,7 +242,10 @@ const projects = computed(() =>
     .map((r) => ({
       // README titles carry the odd tagline or full stop ("DeKamer.", "Name, My Next-Gen ...")
       title: (r.readmeTitle || r.name).split(", ")[0]!.replace(/\.$/, ""),
-      kind: r.topics.includes("school-project") ? "School" : r.topics.includes("client-website") ? "Client" : "Personal",
+      kind: (r.topics.includes("school-project") ? "School" : r.topics.includes("client-website") ? "Client" : "Personal") as
+        | "School"
+        | "Client"
+        | "Personal",
       text: cleanDescription(r.description),
       tags: r.topics.filter((t) => !LABEL_TOPICS.has(t)).slice(0, 4),
       image: r.thumbnail,
@@ -256,14 +259,18 @@ const projects = computed(() =>
 let n = 0;
 const nameLines = ["Borys", "Babas"].map((word) => Array.from(word, (c) => ({ c, i: n++ })));
 
-const heroLine = "I build websites, web apps and AI features.";
-const heroWords = heroLine.split(" ");
+// The site's text in the URL's language; content/site.ts holds all three
+const text = useText();
+const t = computed(() => text.value.home);
+const localePath = useLocalePath();
 
-const statement =
-  "By day I work on Kieskeurig.nl at Reshift. The rest of the time I study Software Engineering at the HvA and work on side projects, mostly for the web.";
-const statementWords = statement.split(" ").map((t) => ({ t, em: t === "Kieskeurig.nl" }));
+const heroLine = computed(() => t.value.heroLine);
+const heroWords = computed(() => heroLine.value.split(" "));
 
-const contactLine = "Let's talk.";
+const statement = computed(() => t.value.statement);
+const statementWords = computed(() => statement.value.split(" ").map((w) => ({ t: w, em: w === "Kieskeurig.nl" })));
+
+const contactLine = computed(() => t.value.contact.line);
 const year = new Date().getFullYear();
 
 const num = (i: number) => String(i + 1).padStart(2, "0");
@@ -278,85 +285,6 @@ const cardStyle = (i: number) => ({
   ...(i > 0 && { viewTimelineName: `--c${i + 1}` }),
   ...(i < projects.value.length - 1 ? { animationTimeline: `--c${i + 2}` } : { animationName: "none" }),
 });
-
-const stack = [
-  { title: "Front end", text: "Vue, Nuxt, React, Next.js, TypeScript, Tailwind CSS, Lit, GSAP and Three.js." },
-  { title: "Back end", text: "Node.js, Express, Laravel, FastAPI and Java." },
-  { title: "Data and hosting", text: "MySQL, MariaDB, Supabase, Docker, Nginx, Apache and Vercel." },
-  { title: "Apps and tools", text: "Kotlin, Flutter, Python and Playwright. Figma, GitHub and GitLab." },
-];
-
-const interests = [
-  { title: "Hi-fi audio", text: "Sales at Hifi Klubben, and Sweetspot, a speaker placement tool I made." },
-  { title: "Mechanical keyboards", text: "Custom builds, switches and keycaps." },
-  { title: "Gaming", text: "FPS, sandbox games and RPGs." },
-  { title: "PCs and networking", text: "My own PCs, and a NAS at home that runs a dashboard I made." },
-];
-
-const facts = [
-  ["Now", "Reshift"],
-  ["Studying", "Software Engineering, HvA"],
-  ["Based in", "Amsterdam"],
-  ["From", "Poland"],
-];
-
-const history: {
-  title: string;
-  entries: { title: string; period: string; text: string; link?: { href: string; label: string } }[];
-}[] = [
-  {
-    title: "Experience",
-    entries: [
-      {
-        title: "Junior AI Developer · Reshift",
-        period: "Aug 2026 – now",
-        text: "AI features for the company behind Kieskeurig.nl, BesteProduct.nl and ID.nl, on a platform that processes millions of prices, reviews and stock updates a day.",
-      },
-      {
-        title: "Sales Assistant · Hifi Klubben",
-        period: "Mar 2024 – now",
-        text: "Advising customers on audio equipment at every budget, from entry-level systems to high-end setups.",
-      },
-      {
-        title: "Software Engineer · IRP/WOSI",
-        period: "Feb 2025 – Jan 2026",
-        text: "A web platform that shows houses on the market as 3D models, where buyers can explore the space and place their own furniture.",
-      },
-      {
-        title: "AGF Assistant · Albert Heijn",
-        period: "Sep 2023 – Mar 2024",
-        text: "Stock, displays and quality in the fresh produce department.",
-      },
-      {
-        title: "Sales Assistant · Pull&Bear",
-        period: "Apr 2023 – Aug 2023",
-        text: "Customer service and sales in a busy store, and opening, closing and cash handling as keyholder.",
-      },
-    ],
-  },
-  {
-    title: "Education",
-    entries: [
-      {
-        title: "Software Engineering · HvA",
-        period: "2022 – 2026",
-        text: "Bachelor's degree at the Amsterdam University of Applied Sciences, focused on modern web technologies, software architecture and user-centred design.",
-      },
-      {
-        title: "Dark Tech: Greep H1 · HvA",
-        period: "2026 – 2027",
-        text: "A half-year project for Tinker: a glove whose servo pulls the index finger by a cord, to find where a wearable turns from a tool into a control mechanism.",
-        link: { href: "https://greep-devlog.vercel.app", label: "Devlog (in Dutch)" },
-      },
-      {
-        title: "Dark Tech: ParallaxAI · HvA",
-        period: "2025 – 2026",
-        text: "A half-year project on AI literacy, comparing how Claude, Gemini and GPT-5 judge people from a single photo.",
-        link: { href: "https://github.com/borysbabas/ParallaxAI", label: "ParallaxAI on GitHub" },
-      },
-    ],
-  },
-];
 
 const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -404,20 +332,20 @@ const copyEmail = () => {
   } catch {}
   const done = () => {
     row.classList.add("done");
-    hint.textContent = "Copied";
-    live.textContent = "Email address copied";
+    hint.textContent = t.value.contact.copied;
+    live.textContent = t.value.contact.copyDone;
     clearTimeout(copyTimer);
     copyTimer = setTimeout(() => {
       row.classList.remove("done");
-      hint.textContent = "Click to copy";
-      live.textContent = "Copies the email address";
+      hint.textContent = t.value.contact.copyHint;
+      live.textContent = t.value.contact.copyLabel;
       const sel = window.getSelection();
       if (sel?.anchorNode && email.contains(sel.anchorNode)) sel.removeAllRanges();
     }, 2200);
   };
   const fail = () => {
     row.classList.add("done");
-    hint.textContent = "Selected, press Ctrl+C";
+    hint.textContent = t.value.contact.copyFallback;
   };
   try {
     navigator.clipboard.writeText(EMAIL).then(done, fail);

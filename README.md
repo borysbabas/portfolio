@@ -10,7 +10,7 @@ The source of [borysbabas.dev](https://borysbabas.dev): a one-page portfolio bui
 - About, interests, experience and education, and contact.
 - Privacy and terms pages.
 - **Stash**, a private page at `/stash` (double-click the `.dev` in the footer). Paste a link and Claude reads it into a
-  card: a recipe, a product, an article. Cards a week old get a reminder email, weekly, until switched off.
+  card: a recipe, a product, an article.
 
 ## Setup
 
@@ -34,7 +34,6 @@ hourly.
 
 - Settings are environment variables; see the Stash section of `.env.example`.
 - Cards live in Supabase, in the tables from `supabase/stash.sql`.
-- `vercel.json` runs `/api/stash/reminders` daily at 08:00 UTC; it emails one digest through Resend.
 - Five wrong passwords in 15 minutes lock sign-in for 15 minutes, and email you when it happens.
 
 ## Structure

@@ -1,0 +1,410 @@
+// The site's own text in English, Dutch and Polish. Dutch and Polish are typed against English,
+// so a missing or misshapen translation fails the type check instead of showing up blank.
+
+interface HistoryEntry {
+    title: string;
+    period: string;
+    text: string;
+    link?: { href: string; label: string };
+}
+
+const en = {
+    meta: {
+        description: "Borys Babas, junior AI developer in Amsterdam: projects, experience and contact.",
+    },
+    nav: {
+        label: "Main",
+        work: "Work",
+        about: "About",
+        contact: "Contact",
+        toLight: "Switch to light mode",
+        toDark: "Switch to dark mode",
+        language: "Language",
+    },
+    footer: { privacy: "Privacy", terms: "Terms" },
+    home: {
+        heroTag: "Junior AI Developer · Amsterdam",
+        heroLine: "I build websites, web apps and AI features.",
+        scroll: "Scroll",
+        statement:
+            "By day I work on Kieskeurig.nl at Reshift. The rest of the time I study Software Engineering at the HvA and work on side projects, mostly for the web.",
+        work: {
+            title: "Selected work",
+            showAs: "Show projects as",
+            stack: "Stack",
+            list: "List",
+            emptyBefore: "My projects didn't load just now. They're all on",
+            emptyAfter: ".",
+            visitSite: "Visit site",
+            viewProject: "View project",
+            kinds: { School: "School", Client: "Client", Personal: "Personal" },
+        },
+        stackTitle: "What I work with",
+        stack: [
+            { title: "Front end", text: "Vue, Nuxt, React, Next.js, TypeScript, Tailwind CSS, Lit, GSAP and Three.js." },
+            { title: "Back end", text: "Node.js, Express, Laravel, FastAPI and Java." },
+            { title: "Data and hosting", text: "MySQL, MariaDB, Supabase, Docker, Nginx, Apache and Vercel." },
+            { title: "Apps and tools", text: "Kotlin, Flutter, Python and Playwright. Figma, GitHub and GitLab." },
+        ],
+        about: {
+            title: "About",
+            intro: "I'm Borys, from Poland and based in Amsterdam.",
+            portraitAlt: "Borys mid-jump off a quad bike in front of a row of palm trees under a cloudy sky",
+            interestsTitle: "Interests",
+            interests: [
+                { title: "Hi-fi audio", text: "Sales at Hifi Klubben, and Sweetspot, a speaker placement tool I made." },
+                { title: "Mechanical keyboards", text: "Custom builds, switches and keycaps." },
+                { title: "Gaming", text: "FPS, sandbox games and RPGs." },
+                { title: "PCs and networking", text: "My own PCs, and a NAS at home that runs a dashboard I made." },
+            ],
+            facts: [
+                { label: "Now", value: "Reshift" },
+                { label: "Studying", value: "Software Engineering, HvA" },
+                { label: "Based in", value: "Amsterdam" },
+                { label: "From", value: "Poland" },
+            ],
+        },
+        historyLabel: "Experience and education",
+        history: [
+            {
+                title: "Experience",
+                entries: [
+                    {
+                        title: "Junior AI Developer · Reshift",
+                        period: "Aug 2026 – now",
+                        text: "AI features for the company behind Kieskeurig.nl, BesteProduct.nl and ID.nl, on a platform that processes millions of prices, reviews and stock updates a day.",
+                    },
+                    {
+                        title: "Sales Assistant · Hifi Klubben",
+                        period: "Mar 2024 – now",
+                        text: "Advising customers on audio equipment at every budget, from entry-level systems to high-end setups.",
+                    },
+                    {
+                        title: "Software Engineer · IRP/WOSI",
+                        period: "Feb 2025 – Jan 2026",
+                        text: "A web platform that shows houses on the market as 3D models, where buyers can explore the space and place their own furniture.",
+                    },
+                    {
+                        title: "AGF Assistant · Albert Heijn",
+                        period: "Sep 2023 – Mar 2024",
+                        text: "Stock, displays and quality in the fresh produce department.",
+                    },
+                    {
+                        title: "Sales Assistant · Pull&Bear",
+                        period: "Apr 2023 – Aug 2023",
+                        text: "Customer service and sales in a busy store, and opening, closing and cash handling as keyholder.",
+                    },
+                ] as HistoryEntry[],
+            },
+            {
+                title: "Education",
+                entries: [
+                    {
+                        title: "Software Engineering · HvA",
+                        period: "2022 – 2026",
+                        text: "Bachelor's degree at the Amsterdam University of Applied Sciences, focused on modern web technologies, software architecture and user-centred design.",
+                    },
+                    {
+                        title: "Dark Tech: Greep H1 · HvA",
+                        period: "2026 – 2027",
+                        text: "A half-year project for Tinker: a glove whose servo pulls the index finger by a cord, to find where a wearable turns from a tool into a control mechanism.",
+                        link: { href: "https://greep-devlog.vercel.app", label: "Devlog (in Dutch)" },
+                    },
+                    {
+                        title: "Dark Tech: ParallaxAI · HvA",
+                        period: "2025 – 2026",
+                        text: "A half-year project on AI literacy, comparing how Claude, Gemini and GPT-5 judge people from a single photo.",
+                        link: { href: "https://github.com/borysbabas/ParallaxAI", label: "ParallaxAI on GitHub" },
+                    },
+                ] as HistoryEntry[],
+            },
+        ],
+        contact: {
+            line: "Let's talk.",
+            copyHint: "Click to copy",
+            copied: "Copied",
+            copyFallback: "Selected, press Ctrl+C",
+            copyLabel: "Copies the email address",
+            copyDone: "Email address copied",
+            cv: "Download CV",
+        },
+    },
+    error: {
+        notFoundTitle: "This page doesn't exist",
+        notFoundText: "The link might be out of date, or the page may have moved.",
+        errorTitle: "Something went wrong",
+        errorText: "That is on my end, not yours. Try again in a moment.",
+        home: "Back home",
+        work: "Selected work",
+        contact: "Contact",
+    },
+};
+
+export type SiteText = typeof en;
+
+const nl: SiteText = {
+    meta: {
+        description: "Borys Babas, junior AI-ontwikkelaar in Amsterdam: projecten, ervaring en contact.",
+    },
+    nav: {
+        label: "Hoofdmenu",
+        work: "Werk",
+        about: "Over mij",
+        contact: "Contact",
+        toLight: "Schakel naar lichte modus",
+        toDark: "Schakel naar donkere modus",
+        language: "Taal",
+    },
+    footer: { privacy: "Privacy", terms: "Voorwaarden" },
+    home: {
+        heroTag: "Junior AI Developer · Amsterdam",
+        heroLine: "Ik bouw websites, webapps en AI-functies.",
+        scroll: "Scroll",
+        statement:
+            "Overdag werk ik bij Reshift aan Kieskeurig.nl. De rest van de tijd studeer ik Software Engineering aan de HvA en werk ik aan eigen projecten, vooral voor het web.",
+        work: {
+            title: "Geselecteerd werk",
+            showAs: "Toon projecten als",
+            stack: "Kaarten",
+            list: "Lijst",
+            emptyBefore: "Mijn projecten laden nu even niet. Ze staan allemaal op",
+            emptyAfter: ".",
+            visitSite: "Naar de site",
+            viewProject: "Bekijk project",
+            kinds: { School: "School", Client: "Klant", Personal: "Eigen project" },
+        },
+        stackTitle: "Waar ik mee werk",
+        stack: [
+            { title: "Front-end", text: "Vue, Nuxt, React, Next.js, TypeScript, Tailwind CSS, Lit, GSAP en Three.js." },
+            { title: "Back-end", text: "Node.js, Express, Laravel, FastAPI en Java." },
+            { title: "Data en hosting", text: "MySQL, MariaDB, Supabase, Docker, Nginx, Apache en Vercel." },
+            { title: "Apps en tools", text: "Kotlin, Flutter, Python en Playwright. Figma, GitHub en GitLab." },
+        ],
+        about: {
+            title: "Over mij",
+            intro: "Ik ben Borys, kom uit Polen en woon in Amsterdam.",
+            portraitAlt: "Borys midden in een sprong van een quad, voor een rij palmbomen onder een bewolkte lucht",
+            interestsTitle: "Interesses",
+            interests: [
+                { title: "Hi-fi audio", text: "Verkoop bij Hifi Klubben, en Sweetspot, een tool die ik maakte om speakers goed neer te zetten." },
+                { title: "Mechanische toetsenborden", text: "Zelf gebouwd, met eigen switches en keycaps." },
+                { title: "Gamen", text: "FPS, sandboxgames en RPG's." },
+                { title: "Pc's en netwerken", text: "Mijn eigen pc's, en thuis een NAS met een dashboard dat ik zelf maakte." },
+            ],
+            facts: [
+                { label: "Nu", value: "Reshift" },
+                { label: "Studie", value: "Software Engineering, HvA" },
+                { label: "Woont in", value: "Amsterdam" },
+                { label: "Komt uit", value: "Polen" },
+            ],
+        },
+        historyLabel: "Ervaring en opleiding",
+        history: [
+            {
+                title: "Ervaring",
+                entries: [
+                    {
+                        title: "Junior AI Developer · Reshift",
+                        period: "aug 2026 – nu",
+                        text: "AI-functies voor het bedrijf achter Kieskeurig.nl, BesteProduct.nl en ID.nl, op een platform dat elke dag miljoenen prijzen, reviews en voorraadupdates verwerkt.",
+                    },
+                    {
+                        title: "Verkoopmedewerker · Hifi Klubben",
+                        period: "mrt 2024 – nu",
+                        text: "Klanten adviseren over audioapparatuur voor elk budget, van instapsystemen tot high-end opstellingen.",
+                    },
+                    {
+                        title: "Software Engineer · IRP/WOSI",
+                        period: "feb 2025 – jan 2026",
+                        text: "Een webplatform dat huizen die te koop staan als 3D-model toont, waarin kopers de ruimte kunnen verkennen en hun eigen meubels kunnen neerzetten.",
+                    },
+                    {
+                        title: "Medewerker AGF · Albert Heijn",
+                        period: "sep 2023 – mrt 2024",
+                        text: "Voorraad, presentatie en kwaliteit op de afdeling aardappelen, groente en fruit.",
+                    },
+                    {
+                        title: "Verkoopmedewerker · Pull&Bear",
+                        period: "apr 2023 – aug 2023",
+                        text: "Klantenservice en verkoop in een drukke winkel, en als sleutelhouder de winkel openen en sluiten en de kassa afhandelen.",
+                    },
+                ],
+            },
+            {
+                title: "Opleiding",
+                entries: [
+                    {
+                        title: "Software Engineering · HvA",
+                        period: "2022 – 2026",
+                        text: "Bacheloropleiding aan de Hogeschool van Amsterdam, gericht op moderne webtechnologie, softwarearchitectuur en gebruikersgericht ontwerp.",
+                    },
+                    {
+                        title: "Dark Tech: Greep H1 · HvA",
+                        period: "2026 – 2027",
+                        text: "Een project van een half jaar voor Tinker: een handschoen waarvan een servo de wijsvinger aan een koord meetrekt, om te onderzoeken wanneer een wearable van hulpmiddel verandert in een controlemiddel.",
+                        link: { href: "https://greep-devlog.vercel.app", label: "Devlog" },
+                    },
+                    {
+                        title: "Dark Tech: ParallaxAI · HvA",
+                        period: "2025 – 2026",
+                        text: "Een project van een half jaar over AI-geletterdheid, waarin we vergeleken hoe Claude, Gemini en GPT-5 mensen beoordelen op basis van één foto.",
+                        link: { href: "https://github.com/borysbabas/ParallaxAI", label: "ParallaxAI op GitHub" },
+                    },
+                ],
+            },
+        ],
+        contact: {
+            line: "Laten we praten.",
+            copyHint: "Klik om te kopiëren",
+            copied: "Gekopieerd",
+            copyFallback: "Geselecteerd, druk op Ctrl+C",
+            copyLabel: "Kopieert het e-mailadres",
+            copyDone: "E-mailadres gekopieerd",
+            cv: "Download cv",
+        },
+    },
+    error: {
+        notFoundTitle: "Deze pagina bestaat niet",
+        notFoundText: "De link is misschien verouderd, of de pagina is verplaatst.",
+        errorTitle: "Er ging iets mis",
+        errorText: "Dat ligt aan mij, niet aan jou. Probeer het zo nog eens.",
+        home: "Terug naar home",
+        work: "Geselecteerd werk",
+        contact: "Contact",
+    },
+};
+
+const pl: SiteText = {
+    meta: {
+        description: "Borys Babas, junior AI developer w Amsterdamie: projekty, doświadczenie i kontakt.",
+    },
+    nav: {
+        label: "Menu główne",
+        work: "Projekty",
+        about: "O mnie",
+        contact: "Kontakt",
+        toLight: "Przełącz na tryb jasny",
+        toDark: "Przełącz na tryb ciemny",
+        language: "Język",
+    },
+    footer: { privacy: "Prywatność", terms: "Regulamin" },
+    home: {
+        heroTag: "Junior AI Developer · Amsterdam",
+        heroLine: "Tworzę strony internetowe, aplikacje webowe i funkcje AI.",
+        scroll: "Przewiń",
+        statement:
+            "W ciągu dnia pracuję w Reshift nad Kieskeurig.nl. Resztę czasu studiuję Software Engineering na HvA i robię własne projekty, głównie webowe.",
+        work: {
+            title: "Wybrane projekty",
+            showAs: "Pokaż projekty jako",
+            stack: "Karty",
+            list: "Lista",
+            emptyBefore: "Projekty się teraz nie wczytały. Wszystkie są na",
+            emptyAfter: ".",
+            visitSite: "Zobacz stronę",
+            viewProject: "Zobacz projekt",
+            kinds: { School: "Studia", Client: "Klient", Personal: "Własny" },
+        },
+        stackTitle: "Z czym pracuję",
+        stack: [
+            { title: "Front-end", text: "Vue, Nuxt, React, Next.js, TypeScript, Tailwind CSS, Lit, GSAP i Three.js." },
+            { title: "Back-end", text: "Node.js, Express, Laravel, FastAPI i Java." },
+            { title: "Dane i hosting", text: "MySQL, MariaDB, Supabase, Docker, Nginx, Apache i Vercel." },
+            { title: "Aplikacje i narzędzia", text: "Kotlin, Flutter, Python i Playwright. Figma, GitHub i GitLab." },
+        ],
+        about: {
+            title: "O mnie",
+            intro: "Jestem Borys, pochodzę z Polski i mieszkam w Amsterdamie.",
+            portraitAlt: "Borys w połowie skoku z quada, przed rzędem palm pod zachmurzonym niebem",
+            interestsTitle: "Zainteresowania",
+            interests: [
+                { title: "Sprzęt hi-fi", text: "Sprzedaż w Hifi Klubben i Sweetspot, narzędzie do ustawiania głośników, które sam zrobiłem." },
+                { title: "Klawiatury mechaniczne", text: "Własne konstrukcje, przełączniki i keycapy." },
+                { title: "Gry", text: "FPS-y, sandboxy i RPG." },
+                { title: "Komputery i sieci", text: "Własne komputery i domowy NAS z dashboardem, który sam zrobiłem." },
+            ],
+            facts: [
+                { label: "Teraz", value: "Reshift" },
+                { label: "Studia", value: "Software Engineering, HvA" },
+                { label: "Mieszkam", value: "w Amsterdamie" },
+                { label: "Pochodzę", value: "z Polski" },
+            ],
+        },
+        historyLabel: "Doświadczenie i edukacja",
+        history: [
+            {
+                title: "Doświadczenie",
+                entries: [
+                    {
+                        title: "Junior AI Developer · Reshift",
+                        period: "sie 2026 – obecnie",
+                        text: "Funkcje AI dla firmy stojącej za Kieskeurig.nl, BesteProduct.nl i ID.nl, na platformie, która codziennie przetwarza miliony cen, recenzji i aktualizacji stanów magazynowych.",
+                    },
+                    {
+                        title: "Doradca ds. sprzedaży · Hifi Klubben",
+                        period: "mar 2024 – obecnie",
+                        text: "Doradzanie klientom przy wyborze sprzętu audio w każdym budżecie, od podstawowych zestawów po systemy z najwyższej półki.",
+                    },
+                    {
+                        title: "Software Engineer · IRP/WOSI",
+                        period: "lut 2025 – sty 2026",
+                        text: "Platforma internetowa, która pokazuje domy na sprzedaż jako modele 3D, w których kupujący mogą obejrzeć wnętrze i ustawić własne meble.",
+                    },
+                    {
+                        title: "Pracownik działu warzyw i owoców · Albert Heijn",
+                        period: "wrz 2023 – mar 2024",
+                        text: "Zatowarowanie, ekspozycja i jakość na dziale świeżych warzyw i owoców.",
+                    },
+                    {
+                        title: "Sprzedawca · Pull&Bear",
+                        period: "kwi 2023 – sie 2023",
+                        text: "Obsługa klienta i sprzedaż w ruchliwym sklepie, a jako osoba z kluczami także otwieranie i zamykanie sklepu oraz obsługa kasy.",
+                    },
+                ],
+            },
+            {
+                title: "Edukacja",
+                entries: [
+                    {
+                        title: "Software Engineering · HvA",
+                        period: "2022 – 2026",
+                        text: "Studia licencjackie na Hogeschool van Amsterdam, skupione na nowoczesnych technologiach webowych, architekturze oprogramowania i projektowaniu zorientowanym na użytkownika.",
+                    },
+                    {
+                        title: "Dark Tech: Greep H1 · HvA",
+                        period: "2026 – 2027",
+                        text: "Półroczny projekt dla Tinker: rękawica, w której serwo ciągnie palec wskazujący za linkę, by zbadać, kiedy urządzenie noszone na ciele przestaje być narzędziem, a staje się mechanizmem kontroli.",
+                        link: { href: "https://greep-devlog.vercel.app", label: "Devlog (po niderlandzku)" },
+                    },
+                    {
+                        title: "Dark Tech: ParallaxAI · HvA",
+                        period: "2025 – 2026",
+                        text: "Półroczny projekt o świadomym korzystaniu z AI, porównujący, jak Claude, Gemini i GPT-5 oceniają ludzi na podstawie jednego zdjęcia.",
+                        link: { href: "https://github.com/borysbabas/ParallaxAI", label: "ParallaxAI na GitHubie" },
+                    },
+                ],
+            },
+        ],
+        contact: {
+            line: "Porozmawiajmy.",
+            copyHint: "Kliknij, aby skopiować",
+            copied: "Skopiowano",
+            copyFallback: "Zaznaczono, naciśnij Ctrl+C",
+            copyLabel: "Kopiuje adres e-mail",
+            copyDone: "Adres e-mail skopiowany",
+            cv: "Pobierz CV",
+        },
+    },
+    error: {
+        notFoundTitle: "Ta strona nie istnieje",
+        notFoundText: "Link mógł się zdezaktualizować albo strona została przeniesiona.",
+        errorTitle: "Coś poszło nie tak",
+        errorText: "To moja wina, nie Twoja. Spróbuj ponownie za chwilę.",
+        home: "Wróć na stronę główną",
+        work: "Wybrane projekty",
+        contact: "Kontakt",
+    },
+};
+
+export const siteText = { en, nl, pl };
+export type Locale = keyof typeof siteText;

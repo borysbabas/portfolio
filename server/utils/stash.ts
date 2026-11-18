@@ -1,4 +1,4 @@
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 import type { H3Event } from "h3";
 
 export interface StashItem {
@@ -18,8 +18,6 @@ export interface StashItem {
         list?: string[];
     };
     tags: string[];
-    remind: boolean;
-    last_reminded_at: string | null;
     created_at: string;
 }
 
@@ -29,7 +27,6 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const stashEnv = {
     get password() { return process.env.STASH_PASSWORD ?? ""; },
     get secret() { return process.env.STASH_SECRET ?? ""; },
-    get cronSecret() { return process.env.CRON_SECRET ?? ""; },
     get email() { return process.env.STASH_EMAIL || "info@borysbabas.dev"; },
     get supabaseUrl() { return process.env.DB_SUPABASE_URL ?? ""; },
     get supabaseKey() { return process.env.DB_SUPABASE_SERVICE_ROLE_KEY ?? ""; },
@@ -79,15 +76,6 @@ export function itemId(event: H3Event): string {
     return id;
 }
 
-/** Signs the "stop reminding me" link in the reminder email, so it works without signing in. */
-export function stopToken(id: string): string {
-    return createHmac("sha256", stashConfig().secret).update(`stop:${id}`).digest("base64url");
-}
-
-export function stopTokenMatches(id: string, token: string): boolean {
-    return UUID.test(id) && secretMatches(token, stopToken(id));
-}
-
 /** Supabase's REST API with the service key, which RLS lets through and the public anon key does not. */
 export function stashDb<T>(
     path: string,
@@ -116,25 +104,6 @@ export function sendStashEmail(subject: string, html: string) {
         headers: { Authorization: `Bearer ${stashEnv.resendApiKey}` },
         body: { from: "Stash <stash@borysbabas.dev>", to: [stashEnv.email], subject, html },
     });
-}
-
-export function escapeHtml(value: string): string {
-    return value
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-}
-
-/** The link and the optional pasted caption from a save or "read again" request, validated. */
-export async function readLinkBody(event: H3Event, url?: unknown) {
-    const body = await readBody<{ url?: unknown; text?: unknown }>(event);
-    const raw = typeof (url ?? body.url) === "string" ? String(url ?? body.url).trim() : "";
-    if (!isWebUrl(raw)) throw createError({ statusCode: 400, statusMessage: "That isn't a web link" });
-    const text = typeof body.text === "string" ? body.text.trim() : "";
-    if (text.length > 20_000) throw createError({ statusCode: 400, statusMessage: "That text is too long to paste" });
-    return { link: new URL(raw), text };
 }
 
 export function isWebUrl(value: unknown): value is string {
