@@ -83,7 +83,9 @@ html.has-cursor .stash textarea { cursor: text !important; }
 .stash-detail .recipe .ingredients ul { list-style: none; padding-left: 0; gap: 0; }
 .stash-detail .recipe .ingredients li { padding: 0.4rem 0; border-bottom: 1px solid var(--line); font-size: 0.9375rem; }
 .stash-detail .recipe .ingredients li.group { border-bottom: 0; padding-top: 0.9rem; font-family: var(--mono); font-size: 0.75rem; color: var(--muted); text-transform: uppercase; }
-.stash-detail .recipe .steps h2 { margin-top: 0; }
+.stash-detail .recipe .steps h2 { margin: 0; }
+.stash-detail .steps-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 0.75rem; }
+.stash-detail .cook-start { min-height: 44px; padding: 0 1.2rem; border: 0; border-radius: 999px; background: var(--ink); color: var(--paper); font: 500 0.9375rem var(--body); cursor: pointer; }
 .stash-detail .recipe .steps ol { list-style: none; padding-left: 0; gap: 0; max-width: none; }
 .stash-detail .recipe .steps li { display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: 0.75rem; padding: 1.1rem 0; border-top: 1px solid var(--line); }
 .stash-detail .recipe .step-n { font-family: var(--display); font-weight: 650; font-size: 1.6rem; line-height: 1; color: var(--muted); }

@@ -39,8 +39,11 @@
           </div>
         </section>
         <section class="section steps">
-          <div v-for="section in steps" :key="section.title">
-            <h2>{{ section.title }}</h2>
+          <div v-for="(section, n) in steps" :key="section.title">
+            <div class="steps-head">
+              <h2>{{ section.title }}</h2>
+              <button v-if="n === 0" class="cook-start" type="button" @click="cooking = true">Start cooking</button>
+            </div>
             <ol>
               <li v-for="(entry, i) in section.items" :key="i">
                 <span aria-hidden="true" class="step-n">{{ String(i + 1).padStart(2, "0") }}</span>
@@ -91,6 +94,8 @@
         ></textarea>
         <button :disabled="busy" type="submit">{{ busy ? "Reading…" : "Read again" }}</button>
       </form>
+
+      <StashCookMode v-if="cooking" :ingredients="ingredients" :steps="cookSteps" :title="item.title" @close="cooking = false" />
     </template>
 
     <p v-if="error" class="stash-error" role="alert">{{ error }}</p>
@@ -130,6 +135,12 @@ const steps = computed(() => (isRecipe.value ? sections.value.filter((s) => s.st
 // Only split out when there are steps to put beside them; otherwise everything renders in order
 const rest = computed(() =>
   steps.value.length ? sections.value.filter((s) => !ingredients.value.includes(s) && !steps.value.includes(s)) : sections.value,
+);
+
+// One step at a time; a recipe with several step sections ("Sauce", "Assembly") shows which one each step is in
+const cooking = ref(false);
+const cookSteps = computed(() =>
+  steps.value.flatMap((s) => s.items.map((text) => ({ section: steps.value.length > 1 ? s.title : "", text }))),
 );
 
 const hostname = (url: string) => new URL(url).hostname.replace(/^www\./, "");
