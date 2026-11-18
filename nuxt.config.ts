@@ -41,6 +41,10 @@ export default defineNuxtConfig({
         // /services is gone -- this stays a portfolio. Redirect rather than
         // 404 so existing links and indexed results land somewhere useful.
         "/services": {redirect: {to: "/", statusCode: 301}},
+        // Folded into sections of the one-page home.
+        "/projects": {redirect: {to: "/#work", statusCode: 301}},
+        "/interests": {redirect: {to: "/#about", statusCode: 301}},
+        "/contact": {redirect: {to: "/#contact", statusCode: 301}},
     },
 
     vite: {
@@ -54,6 +58,7 @@ export default defineNuxtConfig({
         fallback: "dark", // fallback value if system can't be detected
         classSuffix: "", // Important for Tailwind's 'dark' class
         storageKey: "theme",
+        dataValue: "theme", // Also sets <html data-theme>, which the home page's stylesheet keys on
     },
 
     runtimeConfig: {

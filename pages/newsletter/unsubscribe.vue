@@ -85,9 +85,9 @@
           If you're still receiving emails or need assistance, please
           <NuxtLink
               class="text-text-primary font-semibold hover:underline"
-              to="/contact"
+              to="/#contact"
           >
-            contact me through my email form
+            email me
           </NuxtLink
           >
           .
@@ -101,7 +101,7 @@
           </NuxtLink>
           <NuxtLink
               class="border-text-primary bg-background-light text-text-primary hover:bg-text-primary hover:text-background-light inline-block rounded-xl border-2 px-6 py-3 text-sm font-semibold transition-all duration-300 hover:shadow-lg"
-              to="/contact"
+              to="/#contact"
           >
             Contact Me
           </NuxtLink>
