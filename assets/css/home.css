@@ -372,3 +372,9 @@ html.loading { overflow: hidden; }
   .strip-pin { position: static; height: auto; padding: 5rem 0; }
   .track { width: auto; flex-wrap: wrap; padding-inline: max(1.25rem, (100vw - 1200px) / 2); }
 }
+
+/* Nav links glide to their section; the offset keeps headings clear of the fixed nav */
+@media (prefers-reduced-motion: no-preference) {
+  html:has(> body.home) { scroll-behavior: smooth; }
+}
+#work { scroll-margin-top: 5rem; }
