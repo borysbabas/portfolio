@@ -7,7 +7,7 @@
 
 .stash-form { display: flex; gap: 0.5rem; flex-wrap: wrap; max-width: 720px; }
 .stash-form input {
-  flex: 1 1 18rem; min-height: 48px; padding: 0 1rem; border: 1px solid var(--line); border-radius: 999px;
+  flex: 1 1 10rem; min-width: 0; min-height: 48px; padding: 0 1rem; border: 1px solid var(--line); border-radius: 999px;
   background: var(--surface); color: var(--ink); font: inherit;
 }
 .stash-form input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
@@ -22,10 +22,9 @@
 
 .stash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 1.25rem; align-items: start; margin-top: 1rem; }
 .stash-card { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; }
-.stash-card .thumb { display: block; aspect-ratio: 16 / 10; background: var(--soft); }
+.stash-card .thumb { display: block; aspect-ratio: 16 / 10; overflow: hidden; background: var(--soft); }
 .stash-card .thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .stash-card .body { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.25rem; }
-.stash-card .mono { text-transform: capitalize; }
 .stash-card h2 { margin: 0; font-family: var(--display); font-weight: 650; font-size: 1.5rem; line-height: 1.1; letter-spacing: -0.02em; }
 .stash-card .facts { margin: 0; display: grid; }
 .stash-card .facts div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.45rem 0; border-bottom: 1px solid var(--line); font-size: 0.9375rem; }
@@ -39,7 +38,7 @@ html.has-cursor .stash input { cursor: text !important; }
 /* Overview: each card is a link to its own page */
 .stash-card { text-decoration: none; color: inherit; transition: border-color 150ms ease; }
 @media (hover: hover) and (pointer: fine) { .stash-card:hover { border-color: color-mix(in srgb, var(--ink) 30%, transparent); } }
-.stash-card .foot { margin-top: auto; text-transform: none; }
+.stash-card .foot { margin-top: auto; }
 .stash-add { flex-wrap: wrap; }
 .stash-add textarea {
   flex: 1 1 100%; min-height: 5rem; padding: 0.75rem 1rem; border: 1px solid var(--line); border-radius: 16px;
@@ -49,10 +48,10 @@ html.has-cursor .stash textarea { cursor: text !important; }
 
 /* One card, in full */
 .stash-detail { max-width: 760px; }
-.stash-detail .back { padding-left: 0; }
+.stash-detail .back, .stash-detail .actions .quiet { padding-left: 0; }
+.stash-head .quiet { padding-right: 0; }
 .stash-detail .hero { aspect-ratio: 16 / 9; max-height: 340px; border-radius: 22px; overflow: hidden; background: var(--soft); }
 .stash-detail .hero img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.stash-detail .mono { text-transform: capitalize; }
 .stash-detail .sources { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin: 0; }
 .stash-detail .sources a, .stash-detail .link-list a { font-weight: 550; text-underline-offset: 0.2em; }
 /* Facts as one row of small blocks: label above value */
@@ -73,7 +72,7 @@ html.has-cursor .stash textarea { cursor: text !important; }
 .stash-detail .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .stash-detail .tags span { font-family: var(--mono); font-size: 0.75rem; padding: 0.3rem 0.6rem; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
 .stash-detail .actions { display: flex; align-items: center; gap: 0.25rem; padding-top: 0.75rem; border-top: 1px solid var(--line); }
-.stash-detail .actions .mono { margin-right: auto; text-transform: none; }
+.stash-detail .actions .mono { margin-right: auto; }
 
 /* Recipes: ingredients in a sticky column beside numbered steps; stacked on phones */
 .stash-detail:has(.recipe) { max-width: 1100px; }

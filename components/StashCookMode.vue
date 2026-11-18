@@ -31,7 +31,6 @@
 
     <div class="cook-nav">
       <button :disabled="index === 0" class="cook-quiet" type="button" @click="go(-1)">{{ c.back }}</button>
-      <p class="mono">{{ awake ? c.awake : "" }}</p>
       <button ref="nextBtn" class="cook-next" type="button" @click="index === steps.length - 1 ? emit('close') : go(1)">
         {{ index === steps.length - 1 ? c.done : c.next }}
       </button>
@@ -54,7 +53,6 @@ const c = computed(() => siteText.value.stash.cook);
 
 const index = ref(0);
 const showIngredients = ref(false);
-const awake = ref(false);
 const nextBtn = ref<HTMLButtonElement>();
 
 const go = (by: number) => {
@@ -94,11 +92,8 @@ const holdScreen = async () => {
   if (!("wakeLock" in navigator) || document.visibilityState !== "visible") return;
   try {
     lock = await navigator.wakeLock.request("screen");
-    awake.value = true;
-    lock.addEventListener("release", () => (awake.value = false));
   } catch {
     // Refused, for example on low battery: cooking mode still works, the screen just may dim
-    awake.value = false;
   }
 };
 const onVisibility = () => {
@@ -142,11 +137,11 @@ onBeforeUnmount(() => {
 .cook-ingredients ul { list-style: none; margin: 0 0 1.5rem; padding: 0; }
 .cook-ingredients li { padding: 0.55rem 0; border-bottom: 1px solid var(--line); font-size: 1.15rem; }
 .cook-ingredients li.group { border-bottom: 0; padding-top: 1rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); text-transform: uppercase; }
-.cook-nav { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem clamp(1.25rem, 4vw, 3rem) max(1rem, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); }
-.cook-quiet { min-height: 48px; padding: 0 1rem; border: 0; border-radius: 999px; background: none; color: var(--muted); font: inherit; cursor: pointer; }
+.cook-nav { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; padding: 1rem clamp(1.25rem, 4vw, 3rem) max(1rem, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); }
+.cook-quiet { min-height: 48px; padding: 0 1rem; border: 0; border-radius: 999px; background: none; color: var(--muted); font: inherit; white-space: nowrap; cursor: pointer; }
 .cook-quiet:hover:not(:disabled) { color: var(--ink); }
 .cook-quiet:disabled { opacity: 0.35; cursor: default; }
-.cook-next { min-height: 56px; padding: 0 1.75rem; border: 0; border-radius: 999px; background: var(--ink); color: var(--paper); font: 500 1rem var(--body); cursor: pointer; }
+.cook-next { min-height: 56px; padding: 0 1.75rem; white-space: nowrap; border: 0; border-radius: 999px; background: var(--ink); color: var(--paper); font: 500 1rem var(--body); cursor: pointer; }
 .cook button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 
 @media (prefers-reduced-motion: no-preference) {
