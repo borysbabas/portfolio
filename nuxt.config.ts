@@ -40,6 +40,8 @@ export default defineNuxtConfig({
     routeRules: {
         // /services is gone -- this stays a portfolio. Redirect rather than
         // 404 so existing links and indexed results land somewhere useful.
+        // The home page renders the GitHub project list; cache it at the edge so visitors never wait on GitHub.
+        "/": {isr: 3600},
         "/services": {redirect: {to: "/", statusCode: 301}},
         // Folded into sections of the one-page home.
         "/projects": {redirect: {to: "/#work", statusCode: 301}},

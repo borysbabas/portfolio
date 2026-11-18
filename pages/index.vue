@@ -74,34 +74,36 @@
             </button>
           </div>
         </div>
+        <p v-if="!projects.length" class="empty">
+          My projects didn't load just now. They're all on
+          <a href="https://github.com/borysbabas">GitHub</a>.
+        </p>
         <ol id="list" :hidden="view !== 'list'" class="list">
-          <li v-for="(p, i) in projects" :key="p.title" :data-for="i" class="row">
-            <a :href="p.href">
-              <span class="n">{{ num(i) }}</span><span class="t">{{ p.title }}</span><span class="k">{{ p.kind }}</span><span aria-hidden="true" class="arrow">{{ p.href ? "→" : "" }}</span>
+          <li v-for="(p, i) in projects" :key="p.repo" :data-for="i" class="row">
+            <a :href="p.site || p.repo">
+              <span class="n">{{ num(i) }}</span><span class="t">{{ p.title }}</span><span class="k">{{ p.kind }}</span><span aria-hidden="true" class="arrow">→</span>
             </a>
           </li>
         </ol>
-        <div id="stack" :hidden="view !== 'stack'" class="stack">
-          <article v-for="(p, i) in projects" :key="p.title" :style="cardStyle(i)" class="card">
+        <div id="stack" :hidden="view !== 'stack'" :style="{ timelineScope }" class="stack">
+          <article
+            v-for="(p, i) in projects"
+            :key="p.repo"
+            :class="['card', { 'text-only': !p.image }]"
+            :style="cardStyle(i)"
+          >
             <div class="card-text">
               <span class="num">{{ num(i) }} · {{ p.kind }}</span>
               <h3>{{ p.title }}</h3>
               <p>{{ p.text }}</p>
               <div class="tags"><span v-for="t in p.tags" :key="t">{{ t }}</span></div>
-              <a v-if="p.href" :href="p.href" class="more">View project <span aria-hidden="true">→</span></a>
-            </div>
-            <div :class="['media', p.media]" aria-hidden="true">
-              <div v-if="p.media === 'm1'" class="bars">
-                <i v-for="w in [92, 74, 58, 81]" :key="w" :style="{ width: `${w}%` }"></i>
+              <div class="links-row">
+                <a v-if="p.site" :href="p.site" class="more">Visit site <span aria-hidden="true">→</span></a>
+                <a :href="p.repo" class="more">GitHub <span aria-hidden="true">→</span></a>
               </div>
-              <template v-else-if="p.media === 'm2'">
-                <div class="rings"></div>
-                <div class="dot"></div>
-              </template>
-              <span v-else-if="p.media === 'm3'" class="score">812</span>
-              <span v-else-if="p.media === 'm4'" class="clock">14:32</span>
-              <span v-else-if="p.media === 'm5'" class="mark">DE</span>
-              <div v-else class="frame"><span>Claude · Gemini · GPT-5</span></div>
+            </div>
+            <div v-if="p.image" class="media">
+              <img :src="p.image" alt="" decoding="async" loading="lazy" />
             </div>
           </article>
         </div>
@@ -234,6 +236,7 @@
 <script lang="ts" setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import { SpeedInsights } from "@vercel/speed-insights/vue";
+import type { PublicRepo } from "~/server/api/github/repos.get";
 import "~/assets/css/home.css";
 
 definePageMeta({ layout: false });
@@ -257,6 +260,40 @@ useHead({
   script: [{ innerHTML: HTML_CLASSES, tagPosition: "bodyOpen" }],
 });
 
+// Server-side and cached by the endpoint, so the work section is in the first HTML
+const { data: repos } = await useFetch<PublicRepo[]>("/api/github/repos", {
+  key: "github-repos",
+  default: () => [],
+});
+
+// The profile README, and this site itself
+const HIDDEN_REPOS = new Set(["borysbabas", "portfolio"]);
+const LABEL_TOPICS = new Set(["school-project", "client-website"]);
+
+// Descriptions often open with the project name ("ROTK: a text adventure...") and close with
+// "HvA school project.", which the card already shows as its title and its School label
+const cleanDescription = (text: string) => {
+  const s = text.replace(/^[^:.]{1,30}:\s*/, "").replace(/\s*HvA school project\.$/, "");
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
+
+const projects = computed(() =>
+  (repos.value ?? [])
+    .filter((r) => !HIDDEN_REPOS.has(r.name))
+    .map((r) => ({
+      // README titles carry the odd tagline or full stop ("DeKamer.", "Name, My Next-Gen ...")
+      title: (r.readmeTitle || r.name).split(", ")[0]!.replace(/\.$/, ""),
+      kind: r.topics.includes("school-project") ? "School" : r.topics.includes("client-website") ? "Client" : "Personal",
+      text: cleanDescription(r.description),
+      tags: r.topics.filter((t) => !LABEL_TOPICS.has(t)).slice(0, 4),
+      image: r.thumbnail,
+      site: r.homepage || "",
+      repo: r.html_url,
+    }))
+    // Projects with a README image lead; sort is stable, so each group keeps GitHub's last-updated order
+    .sort((a, b) => Number(!a.image) - Number(!b.image)),
+);
+
 let n = 0;
 const nameLines = ["Borys", "Babas"].map((word) => Array.from(word, (c) => ({ c, i: n++ })));
 
@@ -271,61 +308,15 @@ const contactLine = "Let's talk.";
 
 const num = (i: number) => String(i + 1).padStart(2, "0");
 
-const projects = [
-  {
-    title: "Kieskeurig.nl",
-    kind: "Work · Reshift",
-    text: "AI features for the Netherlands' largest tech-focused media company. Kieskeurig.nl handles millions of product prices, reviews and stock updates a day, and I put language models to work on that data.",
-    tags: ["AI", "Language models", "Product data"],
-    href: "https://www.kieskeurig.nl",
-    media: "m1",
-  },
-  {
-    title: "The Controlling Wearable",
-    kind: "School · Studio Dark Tech",
-    text: "A wearable that monitors and steers behaviour, made for Tinker: Ethical TechLab.",
-    tags: ["Wearable", "Prototype", "Research"],
-    href: "https://greep-h1.vercel.app",
-    media: "m2",
-  },
-  {
-    title: "Ragebaiter",
-    kind: "Concept",
-    text: "A satirical Dutch social credit score, built as the most stereotypically Dutch mobile site I could make.",
-    tags: ["Mobile web", "Satire"],
-    media: "m3",
-  },
-  {
-    title: "tv-launcher",
-    kind: "Personal",
-    text: "An ambient screensaver and home screen for a Sony Bravia, with its own small API behind it.",
-    tags: ["Kotlin", "JavaScript", "Vercel"],
-    href: "https://github.com/borysbabas/tv-launcher",
-    media: "m4",
-  },
-  {
-    title: "De Elektraman",
-    kind: "Client · Freelance",
-    text: "The website for an electrical business, which I designed, built and still run.",
-    tags: ["Website", "Vercel"],
-    href: "https://deelektraman.com",
-    media: "m5",
-  },
-  {
-    title: "ParallaxAI",
-    kind: "School · Studio Dark Tech",
-    text: "A photo booth where AI models make assumptions about you from a single photo, to show how confidently, and how biased, AI judges people.",
-    tags: ["Vue", "TensorFlow.js", "FastAPI"],
-    href: "https://github.com/borysbabas/ParallaxAI",
-    media: "m6",
-  },
-];
-
 // Each card sinks as the next one slides over it, so it runs on the next card's view timeline.
+// The stack declares every name so the timelines resolve across siblings.
+const timelineScope = computed(() =>
+  projects.value.slice(1).map((_, i) => `--c${i + 2}`).join(", ") || "none",
+);
 const cardStyle = (i: number) => ({
   "--i": i,
   ...(i > 0 && { viewTimelineName: `--c${i + 1}` }),
-  ...(i < projects.length - 1 ? { animationTimeline: `--c${i + 2}` } : { animationName: "none" }),
+  ...(i < projects.value.length - 1 ? { animationTimeline: `--c${i + 2}` } : { animationName: "none" }),
 });
 
 const panels = [
@@ -684,7 +675,8 @@ onMounted(() => {
     } catch {}
     const tasks: Promise<unknown>[] = [];
     if (document.fonts?.ready) tasks.push(document.fonts.ready);
-    document.querySelectorAll("img").forEach((img) => {
+    // Lazy project images only load once scrolled to, so waiting on them would hold the loader to its time limit
+    document.querySelectorAll<HTMLImageElement>('img:not([loading="lazy"])').forEach((img) => {
       tasks.push(
         img.complete
           ? Promise.resolve()
@@ -744,7 +736,7 @@ onMounted(() => {
     const preview = previewEl.value!;
     const previewInner = previewIn.value!;
     const cur = cursorEl.value!;
-    const medias = document.querySelectorAll("#stack .media");
+    const cards = document.querySelectorAll("#stack .card");
     const targets = ".brand, .nav ul a, #theme, .seg button, .email-copy, .links a, .card .more, .history li a";
     let mx = -9999;
     let my = -9999;
@@ -774,14 +766,12 @@ onMounted(() => {
       overMedia = !!el.closest?.("#stack .media");
       pill.classList.toggle("show", overMedia);
       const row = el.closest?.<HTMLElement>(".row");
-      if (row) {
-        const src = medias[Number(row.dataset.for)];
-        if (src && previewInner.dataset.for !== row.dataset.for) {
-          previewInner.replaceChildren(src.cloneNode(true));
-          previewInner.dataset.for = row.dataset.for;
-        }
+      const src = row && cards[Number(row.dataset.for)]?.querySelector(".media");
+      if (src && previewInner.dataset.for !== row.dataset.for) {
+        previewInner.replaceChildren(src.cloneNode(true));
+        previewInner.dataset.for = row.dataset.for;
       }
-      overRow = !!row;
+      overRow = !!src;
       preview.classList.toggle("show", overRow);
       active = el.closest?.(targets) ?? null;
       cur.classList.toggle("on", !!active);
