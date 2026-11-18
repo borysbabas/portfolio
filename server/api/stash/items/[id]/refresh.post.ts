@@ -10,5 +10,5 @@ export default defineEventHandler(async (event) => {
     // A new reading replaces details wholesale, translations included, so no stale translation survives it
     const row = await readCardRow(link, text);
     const [item] = await stashDb<StashItem[]>("stash_items", { method: "PATCH", query: { id: `eq.${id}` }, body: row });
-    return localizeItem(item!, lang);
+    return localizeItem(item!, lang, true);
 });

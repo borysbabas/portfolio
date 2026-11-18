@@ -44,7 +44,7 @@
         ></textarea>
       </form>
       <p v-if="busy" class="mono">{{ s.readingHint }}</p>
-      <p v-else-if="loading && locale !== 'en'" class="mono">{{ s.translatingHint }}</p>
+      <p v-else-if="translating" class="mono" role="status">{{ s.translatingHint }}</p>
       <p v-else-if="!items.length && !loading" class="mono">{{ s.empty }}</p>
     </template>
 
@@ -73,7 +73,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import type { StashItem } from "~/server/utils/stash";
 import "~/assets/css/stash.css";
 
@@ -87,13 +87,27 @@ const errorText = useStashError();
 useSeoMeta({ title: () => s.value.title, robots: "noindex, nofollow" });
 
 const { data: session, refresh: refreshSession } = await useFetch("/api/stash/session");
-// The server translates cards into the page's language the first time they're asked for in it
+// In the page's language where a translation is stored; the rest come in English and are translated below
 const { data: items, execute: loadItems, status } = await useFetch<StashItem[]>("/api/stash/items", {
   query: { lang: locale },
   default: () => [],
   immediate: !!session.value?.authed,
 });
 const loading = computed(() => status.value === "pending");
+
+// Each card without a stored translation is translated on its own and switches over as soon as it's done.
+// shortcut: all at once, which a stash of dozens of new cards could run into Claude's rate limit with; failed ones stay English until the next visit
+const translating = ref(0);
+const translateMissing = () => {
+  for (const { id } of items.value.filter((item) => item.untranslated)) {
+    translating.value++;
+    $fetch<StashItem>(`/api/stash/items/${id}`, { query: { lang: locale.value, translate: 1 } })
+      .then((done) => (items.value = items.value.map((item) => (item.id === id ? done : item))))
+      .catch(() => {})
+      .finally(() => translating.value--);
+  }
+};
+onMounted(translateMissing);
 
 const password = ref("");
 const link = ref("");
@@ -122,6 +136,7 @@ const signIn = () =>
     password.value = "";
     await refreshSession();
     await loadItems();
+    translateMissing();
   });
 
 const signOut = () =>

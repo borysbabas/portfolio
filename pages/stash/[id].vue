@@ -16,6 +16,7 @@
           <h1>{{ item.title }}</h1>
         </div>
       </header>
+      <p v-if="translating" class="mono" role="status">{{ st.translatingCard }}</p>
       <p class="summary">{{ item.summary }}</p>
       <p class="sources">
         <a :href="item.url" rel="noopener noreferrer" target="_blank">{{ st.openLink }}</a>
@@ -90,7 +91,7 @@
           :placeholder="st.againPlaceholder"
           rows="3"
         ></textarea>
-        <button :disabled="busy" type="submit">{{ busy ? st.reading : st.readAgain }}</button>
+        <button :disabled="busy || translating" type="submit">{{ busy ? st.reading : st.readAgain }}</button>
       </form>
 
       <StashCookMode v-if="cooking" :ingredients="ingredients" :steps="cookSteps" :title="item.title" @close="cooking = false" />
@@ -101,7 +102,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import type { StashItem } from "~/server/utils/stash";
 import "~/assets/css/stash.css";
 
@@ -115,13 +116,27 @@ const errorText = useStashError();
 useSeoMeta({ title: () => st.value.title, robots: "noindex, nofollow" });
 
 const route = useRoute();
-// In the page's language: the server translates the card the first time it's opened in it
+// In the page's language if a translation is stored; otherwise in English, and translated below
 const { data: item, error: fetchError } = await useFetch<StashItem>(`/api/stash/items/${route.params.id}`, {
   query: { lang: locale },
 });
 const loadError = computed(() =>
   fetchError.value?.statusCode === 401 ? st.value.signInFirst : fetchError.value ? st.value.missing : "",
 );
+
+// The card is on screen in English while Claude translates it; it switches over when done
+const translating = ref(false);
+onMounted(async () => {
+  if (!item.value?.untranslated) return;
+  translating.value = true;
+  try {
+    item.value = await $fetch<StashItem>(`/api/stash/items/${route.params.id}`, { query: { lang: locale.value, translate: 1 } });
+  } catch {
+    // Stays in English; the next visit tries again
+  } finally {
+    translating.value = false;
+  }
+});
 
 const text = ref("");
 const busy = ref(false);
