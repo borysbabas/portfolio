@@ -1,0 +1,44 @@
+/* The private /stash pages, on the design's tokens from site.css */
+.stash { display: flex; flex-direction: column; gap: 1.25rem; }
+.stash h1 { margin: 0; font-family: var(--display); font-weight: 650; font-size: clamp(2.5rem, 7vw, 5rem); letter-spacing: -0.04em; line-height: 1; }
+.stash-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--line); }
+.stash .summary { margin: 0; color: var(--muted); max-width: 60ch; }
+.stash .mono { margin: 0; }
+
+.stash-form { display: flex; gap: 0.5rem; flex-wrap: wrap; max-width: 720px; }
+.stash-form input {
+  flex: 1 1 18rem; min-height: 48px; padding: 0 1rem; border: 1px solid var(--line); border-radius: 999px;
+  background: var(--surface); color: var(--ink); font: inherit;
+}
+.stash-form input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.stash-form button {
+  min-height: 48px; padding: 0 1.4rem; border: 0; border-radius: 999px; background: var(--ink); color: var(--paper);
+  font: 500 0.9375rem var(--body); cursor: pointer;
+}
+.stash-form button:disabled { opacity: 0.6; cursor: progress; }
+.stash .quiet { display: inline-flex; align-items: center; min-height: 44px; padding: 0 0.5rem; border: 0; background: none; color: var(--muted); font: inherit; cursor: pointer; text-decoration: none; }
+.stash .quiet:hover { color: var(--ink); }
+.stash-error { margin: 0; color: var(--ink); background: var(--soft); padding: 0.75rem 1rem; border-radius: 10px; max-width: 720px; }
+
+.stash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 1.25rem; align-items: start; margin-top: 1rem; }
+.stash-card { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; }
+.stash-card .thumb { display: block; aspect-ratio: 16 / 10; background: var(--soft); }
+.stash-card .thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.stash-card .body { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.25rem; }
+.stash-card .mono { text-transform: capitalize; }
+.stash-card h2 { margin: 0; font-family: var(--display); font-weight: 650; font-size: 1.5rem; line-height: 1.1; letter-spacing: -0.02em; }
+.stash-card h2 a { text-decoration: none; }
+.stash-card h3 { margin: 0.25rem 0 0; font-weight: 400; }
+.stash-card .facts { margin: 0; display: grid; }
+.stash-card .facts div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.45rem 0; border-bottom: 1px solid var(--line); font-size: 0.9375rem; }
+.stash-card .facts dt { color: var(--muted); }
+.stash-card .facts dd { margin: 0; text-align: right; }
+.stash-card .entries { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.2rem; font-size: 0.9375rem; }
+.stash-card .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.stash-card .tags span { font-family: var(--mono); font-size: 0.75rem; padding: 0.3rem 0.6rem; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
+.stash-card .actions { display: flex; align-items: center; gap: 0.25rem; margin-top: 0.25rem; padding-top: 0.5rem; border-top: 1px solid var(--line); }
+.stash-card .actions .mono { margin-right: auto; text-transform: none; }
+
+/* The site's cursor hides the system one everywhere; in a text field you want the text cursor back.
+   The inputs carry data-hide-cursor, so the dot steps aside there. */
+html.has-cursor .stash input { cursor: text !important; }
