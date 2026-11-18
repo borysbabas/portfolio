@@ -106,6 +106,16 @@ export function sendStashEmail(subject: string, html: string) {
     });
 }
 
+/** The link and the optional pasted caption from a save or "read again" request, validated. */
+export async function readLinkBody(event: H3Event, url?: unknown) {
+    const body = await readBody<{ url?: unknown; text?: unknown }>(event);
+    const raw = typeof (url ?? body.url) === "string" ? String(url ?? body.url).trim() : "";
+    if (!isWebUrl(raw)) throw createError({ statusCode: 400, statusMessage: "That isn't a web link" });
+    const text = typeof body.text === "string" ? body.text.trim() : "";
+    if (text.length > 20_000) throw createError({ statusCode: 400, statusMessage: "That text is too long to paste" });
+    return { link: new URL(raw), text };
+}
+
 export function isWebUrl(value: unknown): value is string {
     if (typeof value !== "string") return false;
     try {
