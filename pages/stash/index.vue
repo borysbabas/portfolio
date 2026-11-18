@@ -9,8 +9,8 @@
       <label class="sr-only" for="stash-password">Password</label>
       <input
         id="stash-password"
-        data-hide-cursor
         v-model="password"
+        data-hide-cursor
         autocomplete="current-password"
         placeholder="Password"
         required
@@ -20,12 +20,12 @@
     </form>
 
     <template v-else>
-      <form class="stash-form" @submit.prevent="save">
+      <form class="stash-form stash-add" @submit.prevent="save">
         <label class="sr-only" for="stash-url">Link to save</label>
         <input
           id="stash-url"
-          data-hide-cursor
           v-model="link"
+          data-hide-cursor
           :disabled="busy"
           inputmode="url"
           placeholder="Paste a link: a recipe, a product, an article…"
@@ -33,43 +33,42 @@
           type="url"
         />
         <button :disabled="busy" type="submit">{{ busy ? "Reading…" : "Save" }}</button>
+        <label class="sr-only" for="stash-text">Caption or notes, optional</label>
+        <textarea
+          id="stash-text"
+          v-model="text"
+          data-hide-cursor
+          :disabled="busy"
+          placeholder="Optional: paste the caption or recipe text. Instagram and TikTok can't be read from the link alone."
+          rows="3"
+        ></textarea>
       </form>
-      <p v-if="busy" class="mono">Claude is reading the page. That can take up to a minute.</p>
+      <p v-if="busy" class="mono">Claude is reading the page and looking for the full version. That can take a minute.</p>
       <p v-else-if="!items.length" class="mono">Nothing saved yet.</p>
     </template>
 
     <p v-if="error" class="stash-error" role="alert">{{ error }}</p>
 
     <div v-if="session?.authed" class="stash-grid">
-      <article v-for="item in items" :key="item.id" class="stash-card">
-        <!-- Same destination as the title link, so it stays out of the tab order -->
-        <a v-if="item.image" :href="item.url" aria-hidden="true" class="thumb" rel="noopener noreferrer" tabindex="-1" target="_blank">
+      <NuxtLink v-for="item in items" :key="item.id" :to="`/stash/${item.id}`" class="stash-card">
+        <div v-if="item.image" class="thumb">
           <img :src="item.image" alt="" loading="lazy" referrerpolicy="no-referrer" />
-        </a>
+        </div>
         <div class="body">
-          <p class="mono">{{ item.kind }} · {{ item.site || hostname(item.url) }} · {{ formatDate(item.created_at) }}</p>
-          <h2><a :href="item.url" rel="noopener noreferrer" target="_blank">{{ item.title }}</a></h2>
+          <p class="mono">{{ item.kind }} · {{ item.site || hostname(item.url) }}</p>
+          <h2>{{ item.title }}</h2>
           <p class="summary">{{ item.summary }}</p>
           <dl v-if="item.details.facts?.length" class="facts">
-            <div v-for="fact in item.details.facts" :key="fact.label">
+            <div v-for="fact in item.details.facts.slice(0, 3)" :key="fact.label">
               <dt>{{ fact.label }}</dt>
               <dd>{{ fact.value }}</dd>
             </div>
           </dl>
-          <template v-if="item.details.list?.length">
-            <h3 class="mono">{{ item.details.list_title }}</h3>
-            <ul class="entries">
-              <li v-for="(entry, i) in item.details.list" :key="i">{{ entry }}</li>
-            </ul>
-          </template>
-          <div v-if="item.tags.length" class="tags"><span v-for="tag in item.tags" :key="tag">{{ tag }}</span></div>
-          <div class="actions">
-            <span class="mono">{{ item.remind ? "Reminds you weekly" : "No reminders" }}</span>
-            <button class="quiet" type="button" @click="toggleRemind(item)">{{ item.remind ? "Stop" : "Remind me" }}</button>
-            <button class="quiet" type="button" @click="remove(item)">{{ confirming === item.id ? "Delete for good?" : "Delete" }}</button>
-          </div>
+          <p class="mono foot">
+            Saved {{ formatDate(item.created_at) }} · {{ item.remind ? "reminds you weekly" : "no reminders" }}
+          </p>
         </div>
-      </article>
+      </NuxtLink>
     </div>
   </div>
 </template>
@@ -89,9 +88,9 @@ const { data: items, execute: loadItems } = await useFetch<StashItem[]>("/api/st
 
 const password = ref("");
 const link = ref("");
+const text = ref("");
 const busy = ref(false);
 const error = ref("");
-const confirming = ref<string | null>(null);
 
 const hostname = (url: string) => new URL(url).hostname.replace(/^www\./, "");
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -128,30 +127,12 @@ const signOut = () =>
 
 const save = () =>
   run(async () => {
-    const item = await $fetch<StashItem>("/api/stash/items", { method: "POST", body: { url: link.value } });
+    const item = await $fetch<StashItem>("/api/stash/items", {
+      method: "POST",
+      body: { url: link.value, text: text.value },
+    });
     items.value = [item, ...items.value];
     link.value = "";
+    text.value = "";
   });
-
-const toggleRemind = (item: StashItem) =>
-  run(async () => {
-    const updated = await $fetch<StashItem>(`/api/stash/items/${item.id}`, {
-      method: "PATCH",
-      body: { remind: !item.remind },
-    });
-    items.value = items.value.map((i) => (i.id === updated.id ? updated : i));
-  });
-
-// Two presses, so a stray click can't throw a card away
-const remove = (item: StashItem) => {
-  if (confirming.value !== item.id) {
-    confirming.value = item.id;
-    return;
-  }
-  confirming.value = null;
-  return run(async () => {
-    await $fetch(`/api/stash/items/${item.id}`, { method: "DELETE" });
-    items.value = items.value.filter((i) => i.id !== item.id);
-  });
-};
 </script>

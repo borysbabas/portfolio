@@ -9,7 +9,14 @@ export interface StashItem {
     summary: string;
     site: string;
     image: string | null;
-    details: { facts?: { label: string; value: string }[]; list_title?: string; list?: string[] };
+    details: {
+        facts?: { label: string; value: string }[];
+        sections?: { title: string; style: "list" | "steps" | "text"; items: string[] }[];
+        links?: { label: string; url: string }[];
+        // Cards saved before sections existed carry a single list instead
+        list_title?: string;
+        list?: string[];
+    };
     tags: string[];
     remind: boolean;
     last_reminded_at: string | null;
@@ -118,6 +125,16 @@ export function escapeHtml(value: string): string {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
+}
+
+/** The link and the optional pasted caption from a save or "read again" request, validated. */
+export async function readLinkBody(event: H3Event, url?: unknown) {
+    const body = await readBody<{ url?: unknown; text?: unknown }>(event);
+    const raw = typeof (url ?? body.url) === "string" ? String(url ?? body.url).trim() : "";
+    if (!isWebUrl(raw)) throw createError({ statusCode: 400, statusMessage: "That isn't a web link" });
+    const text = typeof body.text === "string" ? body.text.trim() : "";
+    if (text.length > 20_000) throw createError({ statusCode: 400, statusMessage: "That text is too long to paste" });
+    return { link: new URL(raw), text };
 }
 
 export function isWebUrl(value: unknown): value is string {
