@@ -93,14 +93,20 @@ const toggleTheme = () => {
 }
 .lang a:hover, .lang a[aria-current] { color: var(--ink); }
 .lang a[aria-current] { text-decoration: underline; text-underline-offset: 0.35em; }
-/* The home page's entrance fades the nav in; the language switch comes in with it */
-@media (prefers-reduced-motion: no-preference) {
-  :global(.js) .lang { opacity: 0; }
-  :global(.ready) .lang { animation: fade 700ms var(--ease-out) both; animation-delay: 350ms; }
-}
 /* Phones: the brand gives way so links, languages and the theme switch fit on one line */
 @media (max-width: 560px) {
   .brand { display: none; }
   .nav ul a { padding: 0 0.4rem; font-size: 0.875rem; }
+}
+</style>
+
+<!-- Not scoped: these hang off classes on <html>. Written as :global(.ready) .lang in the scoped block,
+     Vue kept only ".ready", which put the animation (and its leftover transform) on <html> itself,
+     and a transform there makes every position: fixed element scroll with the page. -->
+<style>
+/* The home page's entrance fades the nav in; the language switch comes in with it */
+@media (prefers-reduced-motion: no-preference) {
+  .js .nav .lang { opacity: 0; }
+  .ready .nav .lang { animation: fade 700ms var(--ease-out) both; animation-delay: 350ms; }
 }
 </style>

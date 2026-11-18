@@ -633,3 +633,12 @@ onBeforeUnmount(() => {
   document.documentElement.classList.remove("js", "loading", "rv", "ready", "first");
 });
 </script>
+
+<style scoped>
+/* The name lines slide past the screen edges as the hero scrolls away. Clipping here keeps that from
+   widening the page, which let a jump to #work scroll sideways with no way back. clip, not hidden:
+   it creates no scroll container, so the sticky cards and the horizontal strip keep working. */
+main {
+  overflow-x: clip;
+}
+</style>
