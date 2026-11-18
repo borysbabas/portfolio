@@ -37,8 +37,9 @@ export default defineEventHandler(async (event) => {
 <tr><td style="padding:20px 0;border-top:1px solid #e3e0dc">
   ${item.image ? `<img src="${escapeHtml(item.image)}" alt="" width="120" style="float:right;margin:0 0 8px 16px;border-radius:8px">` : ""}
   <p style="margin:0 0 6px;font:12px ui-monospace,Menlo,monospace;color:#5F5C58;text-transform:uppercase">${escapeHtml(item.kind)} · saved ${formatDate(item.created_at)}</p>
-  <a href="${escapeHtml(item.url)}" style="font-size:18px;font-weight:600;color:#111111;text-decoration:none">${escapeHtml(item.title)}</a>
+  <a href="${site}/stash/${item.id}" style="font-size:18px;font-weight:600;color:#111111;text-decoration:none">${escapeHtml(item.title)}</a>
   <p style="margin:6px 0 10px;color:#5F5C58;line-height:1.5">${escapeHtml(item.summary)}</p>
+  <a href="${escapeHtml(item.url)}" style="font-size:13px;color:#5F5C58;margin-right:16px">Saved link</a>
   <a href="${stop}" style="font-size:13px;color:#5F5C58">Stop reminding me about this</a>
 </td></tr>`;
         })
