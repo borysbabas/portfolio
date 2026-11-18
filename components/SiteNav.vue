@@ -1,15 +1,27 @@
 <template>
   <header class="nav">
     <!-- Plain links: on the home page they scroll to the section, elsewhere they go home first -->
-    <a class="brand" href="/#top">Borys Babas</a>
+    <a :href="`${home}#top`" class="brand">Borys Babas</a>
     <div class="nav-right">
-      <nav aria-label="Main">
+      <nav :aria-label="text.nav.label">
         <ul>
-          <li><a href="/#work">Work</a></li>
-          <li><a href="/#about">About</a></li>
-          <li><a href="/#contact">Contact</a></li>
+          <li><a :href="`${home}#work`">{{ text.nav.work }}</a></li>
+          <li><a :href="`${home}#about`">{{ text.nav.about }}</a></li>
+          <li><a :href="`${home}#contact`">{{ text.nav.contact }}</a></li>
         </ul>
       </nav>
+      <!-- A full page load per language, so each one comes from its own cached page -->
+      <div :aria-label="text.nav.language" class="lang" role="group">
+        <a
+          v-for="l in locales"
+          :key="l.code"
+          :aria-current="l.code === locale ? 'true' : undefined"
+          :href="switchLocalePath(l.code)"
+          :hreflang="l.language"
+          :lang="l.language"
+          :title="l.name"
+        >{{ l.code.toUpperCase() }}</a>
+      </div>
       <button
         id="theme"
         ref="themeBtn"
@@ -31,6 +43,12 @@
 <script lang="ts" setup>
 import { computed, nextTick, onMounted, ref } from "vue";
 
+const text = useText();
+const { locale, locales } = useI18n();
+const localePath = useLocalePath();
+const switchLocalePath = useSwitchLocalePath();
+const home = computed(() => localePath("/"));
+
 const themeBtn = ref<HTMLButtonElement>();
 
 // Theme switch: the new theme grows out of the button as a circle. color-mode stores the choice
@@ -40,7 +58,7 @@ const colorMode = useColorMode();
 const hydrated = ref(false);
 onMounted(() => (hydrated.value = true));
 const themeLabel = computed(() =>
-  hydrated.value && colorMode.value === "dark" ? "Switch to light mode" : "Switch to dark mode",
+  hydrated.value && colorMode.value === "dark" ? text.value.nav.toLight : text.value.nav.toDark,
 );
 
 const toggleTheme = () => {
@@ -66,3 +84,23 @@ const toggleTheme = () => {
   });
 };
 </script>
+
+<style scoped>
+.lang { display: flex; }
+.lang a {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 0.4rem;
+  font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.04em; color: var(--muted); text-decoration: none;
+}
+.lang a:hover, .lang a[aria-current] { color: var(--ink); }
+.lang a[aria-current] { text-decoration: underline; text-underline-offset: 0.35em; }
+/* The home page's entrance fades the nav in; the language switch comes in with it */
+@media (prefers-reduced-motion: no-preference) {
+  :global(.js) .lang { opacity: 0; }
+  :global(.ready) .lang { animation: fade 700ms var(--ease-out) both; animation-delay: 350ms; }
+}
+/* Phones: the brand gives way so links, languages and the theme switch fit on one line */
+@media (max-width: 560px) {
+  .brand { display: none; }
+  .nav ul a { padding: 0 0.4rem; font-size: 0.875rem; }
+}
+</style>
