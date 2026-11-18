@@ -65,7 +65,7 @@
             </div>
           </dl>
           <p class="mono foot">
-            Saved {{ formatDate(item.created_at) }} · {{ item.remind ? "reminds you weekly" : "no reminders" }}
+            Saved {{ formatDate(item.created_at) }}
           </p>
         </div>
       </NuxtLink>

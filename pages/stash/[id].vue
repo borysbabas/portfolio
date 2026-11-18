@@ -77,8 +77,6 @@
       <div v-if="item.tags.length" class="tags"><span v-for="tag in item.tags" :key="tag">{{ tag }}</span></div>
 
       <div class="actions">
-        <span class="mono">{{ item.remind ? "Reminds you weekly" : "No reminders" }}</span>
-        <button :disabled="busy" class="quiet" type="button" @click="toggleRemind">{{ item.remind ? "Stop reminders" : "Remind me weekly" }}</button>
         <button :disabled="busy" class="quiet" type="button" @click="remove">{{ confirming ? "Delete for good?" : "Delete" }}</button>
       </div>
 
@@ -157,14 +155,6 @@ const run = async (action: () => Promise<void>) => {
     busy.value = false;
   }
 };
-
-const toggleRemind = () =>
-  run(async () => {
-    item.value = await $fetch<StashItem>(`/api/stash/items/${route.params.id}`, {
-      method: "PATCH",
-      body: { remind: !item.value!.remind },
-    });
-  });
 
 const readAgain = () =>
   run(async () => {
