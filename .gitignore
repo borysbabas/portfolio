@@ -28,3 +28,5 @@ server/database/migrations/0001_admin_user.sql
 
 # Local mail storage (development)
 .local-mails/
+.vercel
+.env*
