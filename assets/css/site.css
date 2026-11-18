@@ -67,7 +67,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-o
 @media (hover: hover) and (pointer: fine) { .nav ul a:hover { color: var(--ink); } }
 
 /* Hero */
-.hero { padding: clamp(7rem, 16vh, 10rem) 0 clamp(3rem, 8vh, 5rem); }
+/* The hero fills the first screen, so the statement below only shows once you scroll */
+.hero { min-height: 100svh; display: flex; flex-direction: column; padding: clamp(7rem, 16vh, 10rem) 0 clamp(3rem, 8vh, 5rem); }
 .hero .mono { margin: 0 0 1.5rem; }
 .name {
   margin: 0; font-family: var(--display); font-weight: 600;
@@ -83,7 +84,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-o
 .chi { display: inline-block; }
 .name.loaded .line { overflow: visible; }
 
-.hero-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 1.5rem; flex-wrap: wrap; margin-top: 2.5rem; }
+.hero-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 1.5rem; flex-wrap: wrap; margin-top: auto; padding-top: 2.5rem; }
 .hero-foot .hw { display: inline-block; overflow: clip; vertical-align: top; padding-bottom: 0.12em; margin-bottom: -0.12em; }
 .hero-foot .hw > span { display: inline-block; }
 .hero-foot p { margin: 0; max-width: 34ch; font-size: 1.1875rem; line-height: 1.5; text-wrap: balance; }
@@ -121,7 +122,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-o
 .card .more { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 44px; font-weight: 550; text-decoration: none; color: var(--ink); align-self: flex-start; }
 .card .more span { transition: transform 160ms var(--ease-out); }
 @media (hover: hover) and (pointer: fine) { .card .more:hover span { transform: translateX(3px); } }
-.media { display: block; position: relative; border-radius: 14px; overflow: hidden; min-height: 280px; background: var(--soft); isolation: isolate; }
+.media { display: block; position: relative; border-radius: 14px; overflow: hidden; min-height: 280px; background: var(--paper); isolation: isolate; }
 /* scale-down: screenshots fit without cropping, small logos stay at their own size instead of blurring */
 .media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: scale-down; padding: clamp(1rem, 2.5vw, 2rem); }
 .empty { margin: 0 0 6rem; color: var(--muted); }
@@ -170,7 +171,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-o
 .cursor { position: fixed; left: 0; top: 0; z-index: 50; pointer-events: none; mix-blend-mode: difference; opacity: 0; transition: opacity 150ms ease; }
 .cursor.live { opacity: 1; }
 .cursor.hide { opacity: 0; }
-.cursor .fill { position: absolute; inset: 0; border-radius: 50%; background: #FFFFFF; transition: transform 200ms var(--ease-out), opacity 150ms ease; }
+/* A fixed 12px dot in the middle: only the brackets stretch to the target, so a big card doesn't blow the dot up */
+.cursor .fill { position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: #FFFFFF; transition: transform 200ms var(--ease-out), opacity 150ms ease; }
 .cursor.on .fill { transform: scale(0.2); opacity: 0; }
 .cursor .c { position: absolute; width: 10px; height: 10px; border: 0 solid #FFFFFF; opacity: 0; transition: opacity 150ms ease; }
 .cursor.on .c { opacity: 1; }
