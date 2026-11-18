@@ -1,8 +1,8 @@
 <template>
   <div class="stash stash-detail">
-    <p><NuxtLink class="quiet back" to="/stash">← All cards</NuxtLink></p>
+    <p><NuxtLink :to="localePath('/stash')" class="quiet back">{{ st.allCards }}</NuxtLink></p>
 
-    <p v-if="!item" class="summary">{{ loadError || "Loading…" }}</p>
+    <p v-if="!item" class="summary">{{ loadError || st.loading }}</p>
 
     <template v-else>
       <!-- A recipe gets a small picture beside the title, so the steps aren't pushed down a screen -->
@@ -12,13 +12,13 @@
       <header :class="{ 'with-thumb': item.image && isRecipe }" class="detail-head">
         <img v-if="item.image && isRecipe" :src="item.image" alt="" class="thumb" referrerpolicy="no-referrer" />
         <div>
-          <p class="mono">{{ item.kind }} · {{ item.site || hostname(item.url) }} · saved {{ formatDate(item.created_at) }}</p>
+          <p class="mono">{{ st.kinds[item.kind] }} · {{ item.site || hostname(item.url) }} · {{ fillText(st.saved, { date: formatDate(item.created_at) }) }}</p>
           <h1>{{ item.title }}</h1>
         </div>
       </header>
       <p class="summary">{{ item.summary }}</p>
       <p class="sources">
-        <a :href="item.url" rel="noopener noreferrer" target="_blank">Open the saved link</a>
+        <a :href="item.url" rel="noopener noreferrer" target="_blank">{{ st.openLink }}</a>
       </p>
 
       <dl v-if="item.details.facts?.length" class="facts">
@@ -42,7 +42,7 @@
           <div v-for="(section, n) in steps" :key="section.title">
             <div class="steps-head">
               <h2>{{ section.title }}</h2>
-              <button v-if="n === 0" class="cook-start" type="button" @click="cooking = true">Start cooking</button>
+              <button v-if="n === 0" class="cook-start" type="button" @click="cooking = true">{{ st.startCooking }}</button>
             </div>
             <ol>
               <li v-for="(entry, i) in section.items" :key="i">
@@ -65,7 +65,7 @@
       </section>
 
       <section v-if="item.details.links?.length" class="section">
-        <h2>Links</h2>
+        <h2>{{ st.links }}</h2>
         <ul class="link-list">
           <li v-for="l in item.details.links" :key="l.url">
             <a :href="l.url" rel="noopener noreferrer" target="_blank">{{ l.label }}</a>
@@ -77,20 +77,20 @@
       <div v-if="item.tags.length" class="tags"><span v-for="tag in item.tags" :key="tag">{{ tag }}</span></div>
 
       <div class="actions">
-        <button :disabled="busy" class="quiet" type="button" @click="remove">{{ confirming ? "Delete for good?" : "Delete" }}</button>
+        <button :disabled="busy" class="quiet" type="button" @click="remove">{{ confirming ? st.confirmDelete : st.delete }}</button>
       </div>
 
       <form class="stash-form stash-add" @submit.prevent="readAgain">
-        <label class="sr-only" for="stash-again-text">Caption or notes, optional</label>
+        <label class="sr-only" for="stash-again-text">{{ st.textLabel }}</label>
         <textarea
           id="stash-again-text"
           v-model="text"
           data-hide-cursor
           :disabled="busy"
-          placeholder="Missing something? Paste the caption or recipe text, then read it again."
+          :placeholder="st.againPlaceholder"
           rows="3"
         ></textarea>
-        <button :disabled="busy" type="submit">{{ busy ? "Reading…" : "Read again" }}</button>
+        <button :disabled="busy" type="submit">{{ busy ? st.reading : st.readAgain }}</button>
       </form>
 
       <StashCookMode v-if="cooking" :ingredients="ingredients" :steps="cookSteps" :title="item.title" @close="cooking = false" />
@@ -105,12 +105,22 @@ import { computed, ref } from "vue";
 import type { StashItem } from "~/server/utils/stash";
 import "~/assets/css/stash.css";
 
-useSeoMeta({ title: "Stash", robots: "noindex, nofollow" });
+const siteText = useText();
+const st = computed(() => siteText.value.stash);
+const { locale } = useI18n();
+const localePath = useLocalePath();
+const formatDate = useFormatDate();
+const errorText = useStashError();
+
+useSeoMeta({ title: () => st.value.title, robots: "noindex, nofollow" });
 
 const route = useRoute();
-const { data: item, error: fetchError } = await useFetch<StashItem>(`/api/stash/items/${route.params.id}`);
+// In the page's language: the server translates the card the first time it's opened in it
+const { data: item, error: fetchError } = await useFetch<StashItem>(`/api/stash/items/${route.params.id}`, {
+  query: { lang: locale },
+});
 const loadError = computed(() =>
-  fetchError.value?.statusCode === 401 ? "Sign in on the stash page first." : fetchError.value ? "This card doesn't exist." : "",
+  fetchError.value?.statusCode === 401 ? st.value.signInFirst : fetchError.value ? st.value.missing : "",
 );
 
 const text = ref("");
@@ -127,7 +137,7 @@ const sections = computed(() => {
 
 const isRecipe = computed(() => item.value?.kind === "recipe");
 const ingredients = computed(() =>
-  isRecipe.value ? sections.value.filter((s) => s.style === "list" && /ingredient/i.test(s.title)) : [],
+  isRecipe.value ? sections.value.filter((s) => s.style === "list" && /ingredient/i.test(s.key ?? s.title)) : [],
 );
 const steps = computed(() => (isRecipe.value ? sections.value.filter((s) => s.style === "steps") : []));
 // Only split out when there are steps to put beside them; otherwise everything renders in order
@@ -142,7 +152,6 @@ const cookSteps = computed(() =>
 );
 
 const hostname = (url: string) => new URL(url).hostname.replace(/^www\./, "");
-const formatDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
 const run = async (action: () => Promise<void>) => {
   busy.value = true;
@@ -150,7 +159,7 @@ const run = async (action: () => Promise<void>) => {
   try {
     await action();
   } catch (e) {
-    error.value = (e as { data?: { statusMessage?: string } })?.data?.statusMessage ?? "Something went wrong, try again.";
+    error.value = errorText(e);
   } finally {
     busy.value = false;
   }
@@ -160,7 +169,7 @@ const readAgain = () =>
   run(async () => {
     item.value = await $fetch<StashItem>(`/api/stash/items/${route.params.id}/refresh`, {
       method: "POST",
-      body: { text: text.value },
+      body: { text: text.value, lang: locale.value },
     });
     text.value = "";
   });
@@ -173,7 +182,7 @@ const remove = () => {
   }
   return run(async () => {
     await $fetch(`/api/stash/items/${route.params.id}`, { method: "DELETE" });
-    await navigateTo("/stash");
+    await navigateTo(localePath("/stash"));
   });
 };
 </script>

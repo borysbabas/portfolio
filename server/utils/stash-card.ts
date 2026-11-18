@@ -184,21 +184,21 @@ export async function readCard(url: URL, meta: PageMeta, pasted = ""): Promise<S
             continue;
         }
         if (response.stop_reason === "refusal") {
-            throw createError({ statusCode: 422, statusMessage: "Claude declined to read this link" });
+            throw stashError(422, "declined", "Claude declined to read this link");
         }
         const text = response.content
             .filter((block): block is Anthropic.Beta.BetaTextBlock => block.type === "text")
             .at(-1);
         if (response.stop_reason !== "end_turn" || !text) {
-            throw createError({ statusCode: 502, statusMessage: "Claude couldn't finish reading this link" });
+            throw stashError(502, "read_failed", "Claude couldn't finish reading this link");
         }
         try {
             return JSON.parse(text.text) as StashCard;
         } catch {
-            throw createError({ statusCode: 502, statusMessage: "Claude's card came back malformed" });
+            throw stashError(502, "read_failed", "Claude's card came back malformed");
         }
     }
-    throw createError({ statusCode: 504, statusMessage: "Reading this link took too long" });
+    throw stashError(504, "too_slow", "Reading this link took too long");
 }
 
 /** Reads a link into the columns of a stash_items row; shared by saving and "read again". */
@@ -209,10 +209,10 @@ export async function readCardRow(link: URL, pasted: string) {
         card = await readCard(link, meta, pasted);
     } catch (error) {
         if (error instanceof Anthropic.RateLimitError) {
-            throw createError({ statusCode: 429, statusMessage: "Claude is busy, try again in a minute" });
+            throw stashError(429, "busy", "Claude is busy, try again in a minute");
         }
         if (error instanceof Anthropic.APIError) {
-            throw createError({ statusCode: 502, statusMessage: `Claude couldn't read this link (${error.status})` });
+            throw stashError(502, "read_failed", `Claude couldn't read this link (${error.status})`);
         }
         throw error;
     }

@@ -10,7 +10,7 @@ const recentAttempts = () =>
 
 const locked = (attempts: Attempt[]) => {
     const minutes = Math.max(1, Math.ceil((new Date(attempts[0]!.at).getTime() + WINDOW - Date.now()) / 60000));
-    return createError({ statusCode: 429, statusMessage: `Too many wrong passwords. Try again in ${minutes} min.` });
+    return stashError(429, "locked", `Too many wrong passwords. Try again in ${minutes} min.`, { minutes });
 };
 
 /**
@@ -40,10 +40,7 @@ export default defineEventHandler(async (event) => {
         }
         await new Promise((resolve) => setTimeout(resolve, 1000));
         const left = MAX_ATTEMPTS - attempts.length;
-        throw createError({
-            statusCode: 401,
-            statusMessage: left > 0 ? `Wrong password. ${left} ${left === 1 ? "try" : "tries"} left.` : "Wrong password.",
-        });
+        throw stashError(401, "wrong_password", `Wrong password, ${left} left`, { left });
     }
 
     // Supabase refuses a DELETE without a filter; every id matches this one
