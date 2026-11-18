@@ -1,9 +1,7 @@
 <template>
   <div>
     <div v-if="showLoader" ref="loaderEl" class="loader" aria-hidden="true">
-      <div class="loader-top">
-        <span class="mono">Borys Babas</span><span class="mono">Portfolio 2026</span>
-      </div>
+      <div class="loader-top"><span class="mono">Borys Babas</span></div>
       <div ref="countEl" class="loader-count">000</div>
       <span ref="barEl" class="loader-bar"></span>
     </div>
@@ -37,7 +35,7 @@
 
     <main id="top">
       <section aria-label="Introduction" class="hero wrap">
-        <p class="mono">AI developer and creative technologist · Amsterdam</p>
+        <p class="mono">Junior AI Developer · Amsterdam</p>
         <h1 ref="nameEl" aria-label="Borys Babas" class="name">
           <span v-for="(line, li) in nameLines" :key="li" :class="`line l${li + 1}`" aria-hidden="true">
             <span v-for="ch in line" :key="ch.i" :style="{ '--i': ch.i }" class="ch"><span class="chi">{{ ch.c }}</span></span>
@@ -112,11 +110,10 @@
       <section aria-labelledby="strip-h" class="strip">
         <div class="strip-pin">
           <div class="strip-head section-head">
-            <h2 id="strip-h" data-reveal>What I work on</h2>
-            <span class="mono" data-reveal style="--d: 1">Keep scrolling →</span>
+            <h2 id="strip-h" data-reveal>What I work with</h2>
           </div>
           <div class="track">
-            <div v-for="(panel, i) in panels" :key="panel.title" :style="{ '--d': i + 1 }" class="panel" data-reveal>
+            <div v-for="(panel, i) in stack" :key="panel.title" :style="{ '--d': i + 1 }" class="panel" data-reveal>
               <span class="k">{{ num(i) }}</span>
               <div>
                 <h3>{{ panel.title }}</h3>
@@ -130,14 +127,7 @@
       <section id="about" aria-labelledby="about-h" class="about wrap">
         <div>
           <h2 id="about-h" data-reveal>About</h2>
-          <p data-reveal style="--d: 1">
-            I'm Borys, originally from Poland and now based in Amsterdam. I'm a junior AI engineer at Reshift,
-            mostly on Kieskeurig.nl, and I study Software Engineering at the HvA.
-          </p>
-          <p data-reveal style="--d: 2">
-            What I care about when I build is how it feels to use: the interaction should be smooth, and the
-            interface should make sense without explaining itself. When I'm not building, it's usually one of these.
-          </p>
+          <p data-reveal style="--d: 1">I'm Borys, from Poland and based in Amsterdam.</p>
           <h3 class="mono interests-h" data-reveal>Interests</h3>
           <ul class="interests">
             <li v-for="(item, i) in interests" :key="item.title" :style="{ '--d': i }" data-reveal>
@@ -156,7 +146,6 @@
                 width="768"
               />
             </div>
-            <figcaption class="mono" data-reveal style="--d: 1">Mid-jump.</figcaption>
           </figure>
           <dl class="facts">
             <div v-for="(fact, i) in facts" :key="fact[0]" :style="{ '--d': i }" data-reveal>
@@ -219,8 +208,12 @@
       </section>
 
       <footer class="wrap">
-        <span class="mono" data-reveal>© 2026 Borys Babas · Amsterdam</span>
-        <span class="mono" data-reveal style="--d: 1">Last updated November 2026</span>
+        <span class="mono" data-reveal>© {{ year }} Borys Babas</span>
+        <!-- Plain links: a full page load leaves this page's stylesheet behind -->
+        <ul class="links" data-reveal style="--d: 1">
+          <li><a href="/privacy">Privacy</a></li>
+          <li><a href="/terms">Terms</a></li>
+        </ul>
       </footer>
     </div>
 
@@ -293,7 +286,7 @@ const projects = computed(() =>
 let n = 0;
 const nameLines = ["Borys", "Babas"].map((word) => Array.from(word, (c) => ({ c, i: n++ })));
 
-const heroLine = "I design and build websites, interfaces and AI features. Currently at Reshift in Amsterdam.";
+const heroLine = "I build websites, web apps and AI features.";
 const heroWords = heroLine.split(" ");
 
 const statement =
@@ -301,6 +294,7 @@ const statement =
 const statementWords = statement.split(" ").map((t) => ({ t, em: t === "Kieskeurig.nl" }));
 
 const contactLine = "Let's talk.";
+const year = new Date().getFullYear();
 
 const num = (i: number) => String(i + 1).padStart(2, "0");
 
@@ -315,18 +309,18 @@ const cardStyle = (i: number) => ({
   ...(i < projects.value.length - 1 ? { animationTimeline: `--c${i + 2}` } : { animationName: "none" }),
 });
 
-const panels = [
-  { title: "Front-end development", text: "Websites and web apps in Vue, Nuxt and TypeScript, built to be fast and easy to maintain." },
-  { title: "AI features", text: "Building AI into real products at Reshift, from the prompt to the interface around it." },
-  { title: "Interaction and motion", text: "Animations, states and small details that make an interface feel finished." },
-  { title: "Websites for small businesses", text: "Sites the owner can keep up to date, like the one I run for De Elektraman." },
+const stack = [
+  { title: "Front end", text: "Vue, Nuxt, React, Next.js, TypeScript, Tailwind CSS, Lit, GSAP and Three.js." },
+  { title: "Back end", text: "Node.js, Express, Laravel, FastAPI and Java." },
+  { title: "Data and hosting", text: "MySQL, MariaDB, Supabase, Docker, Nginx, Apache and Vercel." },
+  { title: "Apps and tools", text: "Kotlin, Flutter, Python and Playwright. Figma, GitHub and GitLab." },
 ];
 
 const interests = [
-  { title: "Hi-fi audio", text: "At Hifi Klubben I help people find their setup, from entry-level systems to high-end audiophile gear." },
-  { title: "Mechanical keyboards", text: "Custom builds, where I experiment with switches, layouts and keycaps." },
-  { title: "Gaming", text: "FPS for quick decisions, sandbox games for building, RPGs for the stories." },
-  { title: "Custom PCs", text: "Building my own machines, and a NAS at home that runs a dashboard I made." },
+  { title: "Hi-fi audio", text: "Sales at Hifi Klubben, and Sweetspot, a speaker placement tool I made." },
+  { title: "Mechanical keyboards", text: "Custom builds, switches and keycaps." },
+  { title: "Gaming", text: "FPS, sandbox games and RPGs." },
+  { title: "PCs and networking", text: "My own PCs, and a NAS at home that runs a dashboard I made." },
 ];
 
 const facts = [
