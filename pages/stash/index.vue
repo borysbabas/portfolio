@@ -1,61 +1,62 @@
 <template>
   <div class="stash">
     <div class="stash-head">
-      <h1>Stash</h1>
-      <button v-if="session?.authed" class="quiet" type="button" @click="signOut">Sign out</button>
+      <h1>{{ s.title }}</h1>
+      <button v-if="session?.authed" class="quiet" type="button" @click="signOut">{{ s.signOut }}</button>
     </div>
 
     <form v-if="!session?.authed" class="stash-form" @submit.prevent="signIn">
-      <label class="sr-only" for="stash-password">Password</label>
+      <label class="sr-only" for="stash-password">{{ s.password }}</label>
       <input
         id="stash-password"
         v-model="password"
         data-hide-cursor
         autocomplete="current-password"
-        placeholder="Password"
+        :placeholder="s.password"
         required
         type="password"
       />
-      <button :disabled="busy" type="submit">{{ busy ? "Checking…" : "Sign in" }}</button>
+      <button :disabled="busy" type="submit">{{ busy ? s.checking : s.signIn }}</button>
     </form>
 
     <template v-else>
       <form class="stash-form stash-add" @submit.prevent="save">
-        <label class="sr-only" for="stash-url">Link to save</label>
+        <label class="sr-only" for="stash-url">{{ s.linkLabel }}</label>
         <input
           id="stash-url"
           v-model="link"
           data-hide-cursor
           :disabled="busy"
           inputmode="url"
-          placeholder="Paste a link: a recipe, a product, an article…"
+          :placeholder="s.linkPlaceholder"
           required
           type="url"
         />
-        <button :disabled="busy" type="submit">{{ busy ? "Reading…" : "Save" }}</button>
-        <label class="sr-only" for="stash-text">Caption or notes, optional</label>
+        <button :disabled="busy" type="submit">{{ busy ? s.reading : s.save }}</button>
+        <label class="sr-only" for="stash-text">{{ s.textLabel }}</label>
         <textarea
           id="stash-text"
           v-model="text"
           data-hide-cursor
           :disabled="busy"
-          placeholder="Optional: paste the caption or recipe text. Instagram and TikTok can't be read from the link alone."
+          :placeholder="s.textPlaceholder"
           rows="3"
         ></textarea>
       </form>
-      <p v-if="busy" class="mono">Claude is reading the page and looking for the full version. That can take a minute.</p>
-      <p v-else-if="!items.length" class="mono">Nothing saved yet.</p>
+      <p v-if="busy" class="mono">{{ s.readingHint }}</p>
+      <p v-else-if="loading && locale !== 'en'" class="mono">{{ s.translatingHint }}</p>
+      <p v-else-if="!items.length && !loading" class="mono">{{ s.empty }}</p>
     </template>
 
     <p v-if="error" class="stash-error" role="alert">{{ error }}</p>
 
     <div v-if="session?.authed" class="stash-grid">
-      <NuxtLink v-for="item in items" :key="item.id" :to="`/stash/${item.id}`" class="stash-card">
+      <NuxtLink v-for="item in items" :key="item.id" :to="localePath(`/stash/${item.id}`)" class="stash-card">
         <div v-if="item.image" class="thumb">
           <img :src="item.image" alt="" loading="lazy" referrerpolicy="no-referrer" />
         </div>
         <div class="body">
-          <p class="mono">{{ item.kind }} · {{ item.site || hostname(item.url) }}</p>
+          <p class="mono">{{ s.kinds[item.kind] }} · {{ item.site || hostname(item.url) }}</p>
           <h2>{{ item.title }}</h2>
           <p class="summary">{{ item.summary }}</p>
           <dl v-if="item.details.facts?.length" class="facts">
@@ -64,9 +65,7 @@
               <dd>{{ fact.value }}</dd>
             </div>
           </dl>
-          <p class="mono foot">
-            Saved {{ formatDate(item.created_at) }}
-          </p>
+          <p class="mono foot">{{ fillText(s.saved, { date: formatDate(item.created_at) }) }}</p>
         </div>
       </NuxtLink>
     </div>
@@ -74,17 +73,27 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import type { StashItem } from "~/server/utils/stash";
 import "~/assets/css/stash.css";
 
-useSeoMeta({ title: "Stash", robots: "noindex, nofollow" });
+const siteText = useText();
+const s = computed(() => siteText.value.stash);
+const { locale } = useI18n();
+const localePath = useLocalePath();
+const formatDate = useFormatDate();
+const errorText = useStashError();
+
+useSeoMeta({ title: () => s.value.title, robots: "noindex, nofollow" });
 
 const { data: session, refresh: refreshSession } = await useFetch("/api/stash/session");
-const { data: items, execute: loadItems } = await useFetch<StashItem[]>("/api/stash/items", {
+// The server translates cards into the page's language the first time they're asked for in it
+const { data: items, execute: loadItems, status } = await useFetch<StashItem[]>("/api/stash/items", {
+  query: { lang: locale },
   default: () => [],
   immediate: !!session.value?.authed,
 });
+const loading = computed(() => status.value === "pending");
 
 const password = ref("");
 const link = ref("");
@@ -93,9 +102,6 @@ const busy = ref(false);
 const error = ref("");
 
 const hostname = (url: string) => new URL(url).hostname.replace(/^www\./, "");
-const formatDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-const messageOf = (e: unknown) =>
-  (e as { data?: { statusMessage?: string } })?.data?.statusMessage ?? "Something went wrong, try again.";
 
 // Every action shows its own error and clears the last one
 const run = async (action: () => Promise<void>) => {
@@ -104,7 +110,7 @@ const run = async (action: () => Promise<void>) => {
   try {
     await action();
   } catch (e) {
-    error.value = messageOf(e);
+    error.value = errorText(e);
   } finally {
     busy.value = false;
   }
@@ -129,7 +135,7 @@ const save = () =>
   run(async () => {
     const item = await $fetch<StashItem>("/api/stash/items", {
       method: "POST",
-      body: { url: link.value, text: text.value },
+      body: { url: link.value, text: text.value, lang: locale.value },
     });
     items.value = [item, ...items.value];
     link.value = "";

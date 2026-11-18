@@ -11,8 +11,10 @@ export interface StashItem {
     image: string | null;
     details: {
         facts?: { label: string; value: string }[];
-        sections?: { title: string; style: "list" | "steps" | "text"; items: string[] }[];
+        // key: the English title, kept when the section is shown translated, so a page can still tell what it is
+        sections?: { title: string; key?: string; style: "list" | "steps" | "text"; items: string[] }[];
         links?: { label: string; url: string }[];
+        translations?: Partial<Record<"nl" | "pl", StashTranslation>>;
         // Cards saved before sections existed carry a single list instead
         list_title?: string;
         list?: string[];
@@ -20,6 +22,24 @@ export interface StashItem {
     tags: string[];
     created_at: string;
 }
+
+/** A card's text in another language, in the same order and lengths as the English it came from. */
+export interface StashTranslation {
+    title: string;
+    summary: string;
+    site: string;
+    facts: { label: string; value: string }[];
+    sections: { title: string; items: string[] }[];
+    link_labels: string[];
+    tags: string[];
+}
+
+export type StashLang = "en" | "nl" | "pl";
+export const stashLang = (value: unknown): StashLang => (value === "nl" || value === "pl" ? value : "en");
+
+/** Errors carry a code, so the page can say them in the visitor's language; the message stays for logs. */
+export const stashError = (statusCode: number, code: string, statusMessage: string, params: Record<string, number> = {}) =>
+    createError({ statusCode, statusMessage, data: { code, ...params } });
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -37,7 +57,7 @@ export const stashEnv = {
 /** Missing secrets fail closed: no password configured means no way in. */
 function stashConfig() {
     if (!stashEnv.password || stashEnv.secret.length < 32) {
-        throw createError({ statusCode: 503, statusMessage: "The stash isn't configured" });
+        throw stashError(503, "not_configured", "The stash isn't configured");
     }
     return stashEnv;
 }
@@ -61,7 +81,7 @@ export function useStashSession(event: H3Event) {
 export async function requireStash(event: H3Event) {
     const session = await useStashSession(event);
     if (!session.data.authed) {
-        throw createError({ statusCode: 401, statusMessage: "Sign in first" });
+        throw stashError(401, "sign_in", "Sign in first");
     }
 }
 
@@ -72,7 +92,7 @@ export function passwordMatches(input: string): boolean {
 /** Item ids go into PostgREST filters, so only a well-formed UUID gets through. */
 export function itemId(event: H3Event): string {
     const id = getRouterParam(event, "id") ?? "";
-    if (!UUID.test(id)) throw createError({ statusCode: 400, statusMessage: "Unknown card" });
+    if (!UUID.test(id)) throw stashError(400, "unknown_card", "Unknown card");
     return id;
 }
 
@@ -83,7 +103,7 @@ export function stashDb<T>(
 ) {
     // Without a base URL $fetch would quietly call this server instead
     if (!stashEnv.supabaseUrl || !stashEnv.supabaseKey) {
-        throw createError({ statusCode: 503, statusMessage: "The stash isn't configured" });
+        throw stashError(503, "not_configured", "The stash isn't configured");
     }
     return $fetch<T>(`/rest/v1/${path}`, {
         baseURL: stashEnv.supabaseUrl,
@@ -106,14 +126,14 @@ export function sendStashEmail(subject: string, html: string) {
     });
 }
 
-/** The link and the optional pasted caption from a save or "read again" request, validated. */
+/** The link, the optional pasted caption and the page's language from a save or "read again" request, validated. */
 export async function readLinkBody(event: H3Event, url?: unknown) {
-    const body = await readBody<{ url?: unknown; text?: unknown }>(event);
+    const body = await readBody<{ url?: unknown; text?: unknown; lang?: unknown }>(event);
     const raw = typeof (url ?? body.url) === "string" ? String(url ?? body.url).trim() : "";
-    if (!isWebUrl(raw)) throw createError({ statusCode: 400, statusMessage: "That isn't a web link" });
+    if (!isWebUrl(raw)) throw stashError(400, "not_a_link", "That isn't a web link");
     const text = typeof body.text === "string" ? body.text.trim() : "";
-    if (text.length > 20_000) throw createError({ statusCode: 400, statusMessage: "That text is too long to paste" });
-    return { link: new URL(raw), text };
+    if (text.length > 20_000) throw stashError(400, "text_too_long", "That text is too long to paste");
+    return { link: new URL(raw), text, lang: stashLang(body.lang) };
 }
 
 export function isWebUrl(value: unknown): value is string {

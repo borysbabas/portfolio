@@ -1,12 +1,12 @@
 <template>
-  <div :aria-label="`Cooking ${title}`" aria-modal="true" class="cook" role="dialog">
+  <div :aria-label="fillText(c.label, { title })" aria-modal="true" class="cook" role="dialog">
     <div class="cook-top">
-      <p class="mono">Step {{ index + 1 }} of {{ steps.length }}</p>
+      <p class="mono">{{ fillText(c.step, { n: index + 1, total: steps.length }) }}</p>
       <div class="cook-tools">
         <button v-if="ingredients.length" :aria-expanded="String(showIngredients)" class="cook-quiet" type="button" @click="showIngredients = !showIngredients">
-          {{ showIngredients ? "Back to the step" : "Ingredients" }}
+          {{ showIngredients ? c.backToStep : c.ingredients }}
         </button>
-        <button aria-label="Stop cooking" class="cook-quiet" type="button" @click="emit('close')">Close</button>
+        <button :aria-label="c.stop" class="cook-quiet" type="button" @click="emit('close')">{{ c.close }}</button>
       </div>
       <span aria-hidden="true" class="cook-progress" :style="{ transform: `scaleX(${(index + 1) / steps.length})` }"></span>
     </div>
@@ -30,17 +30,17 @@
     </div>
 
     <div class="cook-nav">
-      <button :disabled="index === 0" class="cook-quiet" type="button" @click="go(-1)">Back</button>
-      <p class="mono">{{ awake ? "Screen stays on" : "" }}</p>
+      <button :disabled="index === 0" class="cook-quiet" type="button" @click="go(-1)">{{ c.back }}</button>
+      <p class="mono">{{ awake ? c.awake : "" }}</p>
       <button ref="nextBtn" class="cook-next" type="button" @click="index === steps.length - 1 ? emit('close') : go(1)">
-        {{ index === steps.length - 1 ? "Done" : "Next step" }}
+        {{ index === steps.length - 1 ? c.done : c.next }}
       </button>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
 const props = defineProps<{
   title: string;
@@ -48,6 +48,9 @@ const props = defineProps<{
   ingredients: { title: string; items: string[] }[];
 }>();
 const emit = defineEmits<{ close: [] }>();
+
+const siteText = useText();
+const c = computed(() => siteText.value.stash.cook);
 
 const index = ref(0);
 const showIngredients = ref(false);
