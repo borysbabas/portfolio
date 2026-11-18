@@ -5,13 +5,18 @@
     <p v-if="!item" class="summary">{{ loadError || "Loading…" }}</p>
 
     <template v-else>
-      <div v-if="item.image" class="hero">
+      <!-- A recipe gets a small picture beside the title, so the steps aren't pushed down a screen -->
+      <div v-if="item.image && !isRecipe" class="hero">
         <img :src="item.image" alt="" referrerpolicy="no-referrer" />
       </div>
-      <p class="mono">{{ item.kind }} · {{ item.site || hostname(item.url) }} · saved {{ formatDate(item.created_at) }}</p>
-      <h1>{{ item.title }}</h1>
+      <header :class="{ 'with-thumb': item.image && isRecipe }" class="detail-head">
+        <img v-if="item.image && isRecipe" :src="item.image" alt="" class="thumb" referrerpolicy="no-referrer" />
+        <div>
+          <p class="mono">{{ item.kind }} · {{ item.site || hostname(item.url) }} · saved {{ formatDate(item.created_at) }}</p>
+          <h1>{{ item.title }}</h1>
+        </div>
+      </header>
       <p class="summary">{{ item.summary }}</p>
-
       <p class="sources">
         <a :href="item.url" rel="noopener noreferrer" target="_blank">Open the saved link</a>
       </p>
@@ -23,7 +28,33 @@
         </div>
       </dl>
 
-      <section v-for="section in sections" :key="section.title" class="section">
+      <!-- Recipes: ingredients beside the steps, so both are in view while cooking -->
+      <div v-if="isRecipe && steps.length" class="recipe">
+        <section v-if="ingredients.length" class="section ingredients">
+          <div v-for="section in ingredients" :key="section.title">
+            <h2>{{ section.title }}</h2>
+            <ul>
+              <li v-for="(entry, i) in section.items" :key="i" :class="{ group: entry.endsWith(':') }">{{ entry }}</li>
+            </ul>
+          </div>
+        </section>
+        <section class="section steps">
+          <div v-for="(section, n) in steps" :key="section.title">
+            <div class="steps-head">
+              <h2>{{ section.title }}</h2>
+              <button v-if="n === 0" class="cook-start" type="button" @click="cooking = true">Start cooking</button>
+            </div>
+            <ol>
+              <li v-for="(entry, i) in section.items" :key="i">
+                <span aria-hidden="true" class="step-n">{{ String(i + 1).padStart(2, "0") }}</span>
+                <p>{{ entry }}</p>
+              </li>
+            </ol>
+          </div>
+        </section>
+      </div>
+
+      <section v-for="section in rest" :key="section.title" class="section">
         <h2>{{ section.title }}</h2>
         <template v-if="section.style === 'text'">
           <p v-for="(entry, i) in section.items" :key="i">{{ entry }}</p>
@@ -63,6 +94,8 @@
         ></textarea>
         <button :disabled="busy" type="submit">{{ busy ? "Reading…" : "Read again" }}</button>
       </form>
+
+      <StashCookMode v-if="cooking" :ingredients="ingredients" :steps="cookSteps" :title="item.title" @close="cooking = false" />
     </template>
 
     <p v-if="error" class="stash-error" role="alert">{{ error }}</p>
@@ -93,6 +126,22 @@ const sections = computed(() => {
   if (details?.sections) return details.sections;
   return details?.list?.length ? [{ title: details.list_title ?? "", style: "list" as const, items: details.list }] : [];
 });
+
+const isRecipe = computed(() => item.value?.kind === "recipe");
+const ingredients = computed(() =>
+  isRecipe.value ? sections.value.filter((s) => s.style === "list" && /ingredient/i.test(s.title)) : [],
+);
+const steps = computed(() => (isRecipe.value ? sections.value.filter((s) => s.style === "steps") : []));
+// Only split out when there are steps to put beside them; otherwise everything renders in order
+const rest = computed(() =>
+  steps.value.length ? sections.value.filter((s) => !ingredients.value.includes(s) && !steps.value.includes(s)) : sections.value,
+);
+
+// One step at a time; a recipe with several step sections ("Sauce", "Assembly") shows which one each step is in
+const cooking = ref(false);
+const cookSteps = computed(() =>
+  steps.value.flatMap((s) => s.items.map((text) => ({ section: steps.value.length > 1 ? s.title : "", text }))),
+);
 
 const hostname = (url: string) => new URL(url).hostname.replace(/^www\./, "");
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
