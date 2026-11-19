@@ -20,7 +20,7 @@
     </form>
 
     <template v-else>
-      <form class="stash-form stash-add" @submit.prevent="save">
+      <form class="stash-compose" @submit.prevent="save">
         <label class="sr-only" for="stash-url">{{ s.linkLabel }}</label>
         <input
           id="stash-url"
@@ -32,7 +32,6 @@
           required
           type="url"
         />
-        <button :disabled="busy" type="submit">{{ busy ? s.reading : s.save }}</button>
         <label class="sr-only" for="stash-text">{{ s.textLabel }}</label>
         <textarea
           id="stash-text"
@@ -40,11 +39,14 @@
           data-hide-cursor
           :disabled="busy"
           :placeholder="s.textPlaceholder"
-          rows="3"
+          rows="2"
         ></textarea>
+        <div class="compose-foot">
+          <p aria-live="polite" class="mono">{{ busy ? s.readingHint : s.captionHint }}</p>
+          <button :disabled="busy" type="submit">{{ busy ? s.reading : s.save }}</button>
+        </div>
       </form>
-      <p v-if="busy" class="mono">{{ s.readingHint }}</p>
-      <p v-else-if="translating" class="mono" role="status">{{ s.translatingHint }}</p>
+      <p v-if="translating" class="mono" role="status">{{ s.translatingHint }}</p>
       <p v-else-if="!items.length && !loading" class="mono">{{ s.empty }}</p>
     </template>
 
