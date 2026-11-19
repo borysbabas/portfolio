@@ -39,11 +39,25 @@ html.has-cursor .stash input { cursor: text !important; }
 .stash-card { text-decoration: none; color: inherit; transition: border-color 150ms ease; }
 @media (hover: hover) and (pointer: fine) { .stash-card:hover { border-color: color-mix(in srgb, var(--ink) 30%, transparent); } }
 .stash-card .foot { margin-top: auto; }
-.stash-add { flex-wrap: wrap; }
-.stash-add textarea {
-  flex: 1 1 100%; min-height: 5rem; padding: 0.75rem 1rem; border: 1px solid var(--line); border-radius: 16px;
-  background: var(--surface); color: var(--ink); font: inherit; resize: vertical;
+/* Adding or rereading a card: one box holding the link, the optional caption and the button.
+   The box shows focus as a whole; the caret shows which field. */
+.stash-compose { display: grid; max-width: 720px; border: 1px solid var(--line); border-radius: 22px; background: var(--surface); transition: border-color 150ms ease, box-shadow 150ms ease; }
+.stash-compose:focus-within { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.stash-compose input, .stash-compose textarea { width: 100%; min-width: 0; border: 0; background: none; color: var(--ink); font: inherit; outline: none; }
+.stash-compose input { min-height: 3.5rem; padding: 0 1.25rem; font-size: 1.0625rem; border-bottom: 1px solid var(--line); }
+/* Grows with a pasted caption where the browser can; elsewhere it can be dragged taller */
+.stash-compose textarea { min-height: 3.75rem; max-height: 50vh; padding: 0.9rem 1.25rem 0.25rem; font-size: 0.9375rem; line-height: 1.5; resize: vertical; field-sizing: content; }
+@supports (field-sizing: content) { .stash-compose textarea { resize: none; } }
+.stash-compose ::placeholder { color: var(--muted); opacity: 1; }
+.stash-compose :disabled { opacity: 0.6; }
+.stash-compose .compose-foot { display: flex; align-items: center; gap: 1rem; padding: 0.5rem 0.5rem 0.5rem 1.25rem; }
+.stash-compose .compose-foot .mono { flex: 1; font-size: 0.75rem; }
+.stash-compose button {
+  flex: none; min-height: 44px; padding: 0 1.3rem; border: 0; border-radius: 999px; background: var(--ink); color: var(--paper);
+  font: 500 0.9375rem var(--body); cursor: pointer;
 }
+.stash-compose button:disabled { cursor: progress; }
+.stash-compose button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 html.has-cursor .stash textarea { cursor: text !important; }
 
 /* One card, in full */

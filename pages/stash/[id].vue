@@ -81,7 +81,7 @@
         <button :disabled="busy" class="quiet" type="button" @click="remove">{{ confirming ? st.confirmDelete : st.delete }}</button>
       </div>
 
-      <form class="stash-form stash-add" @submit.prevent="readAgain">
+      <form class="stash-compose" @submit.prevent="readAgain">
         <label class="sr-only" for="stash-again-text">{{ st.textLabel }}</label>
         <textarea
           id="stash-again-text"
@@ -89,9 +89,12 @@
           data-hide-cursor
           :disabled="busy"
           :placeholder="st.againPlaceholder"
-          rows="3"
+          rows="2"
         ></textarea>
-        <button :disabled="busy || translating" type="submit">{{ busy ? st.reading : st.readAgain }}</button>
+        <div class="compose-foot">
+          <p aria-live="polite" class="mono">{{ busy ? st.readingHint : "" }}</p>
+          <button :disabled="busy || translating" type="submit">{{ busy ? st.reading : st.readAgain }}</button>
+        </div>
       </form>
 
       <StashCookMode v-if="cooking" :ingredients="ingredients" :steps="cookSteps" :title="item.title" @close="cooking = false" />

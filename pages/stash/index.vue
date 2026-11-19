@@ -4,6 +4,7 @@
       <h1>{{ s.title }}</h1>
       <button v-if="session?.authed" class="quiet" type="button" @click="signOut">{{ s.signOut }}</button>
     </div>
+    <p v-if="session?.authed && costs" class="mono">{{ fillText(s.costs, { month: formatUsd(costs.month), last: formatUsd(costs.last) }) }}</p>
 
     <form v-if="!session?.authed" class="stash-form" @submit.prevent="signIn">
       <label class="sr-only" for="stash-password">{{ s.password }}</label>
@@ -20,7 +21,7 @@
     </form>
 
     <template v-else>
-      <form class="stash-form stash-add" @submit.prevent="save">
+      <form class="stash-compose" @submit.prevent="save">
         <label class="sr-only" for="stash-url">{{ s.linkLabel }}</label>
         <input
           id="stash-url"
@@ -32,7 +33,6 @@
           required
           type="url"
         />
-        <button :disabled="busy" type="submit">{{ busy ? s.reading : s.save }}</button>
         <label class="sr-only" for="stash-text">{{ s.textLabel }}</label>
         <textarea
           id="stash-text"
@@ -40,11 +40,14 @@
           data-hide-cursor
           :disabled="busy"
           :placeholder="s.textPlaceholder"
-          rows="3"
+          rows="2"
         ></textarea>
+        <div class="compose-foot">
+          <p aria-live="polite" class="mono">{{ busy ? s.readingHint : s.captionHint }}</p>
+          <button :disabled="busy" type="submit">{{ busy ? s.reading : s.save }}</button>
+        </div>
       </form>
-      <p v-if="busy" class="mono">{{ s.readingHint }}</p>
-      <p v-else-if="translating" class="mono" role="status">{{ s.translatingHint }}</p>
+      <p v-if="translating" class="mono" role="status">{{ s.translatingHint }}</p>
       <p v-else-if="!items.length && !loading" class="mono">{{ s.empty }}</p>
     </template>
 
@@ -82,6 +85,7 @@ const s = computed(() => siteText.value.stash);
 const { locale } = useI18n();
 const localePath = useLocalePath();
 const formatDate = useFormatDate();
+const formatUsd = useFormatUsd();
 const errorText = useStashError();
 
 useSeoMeta({ title: () => s.value.title, robots: "noindex, nofollow" });
@@ -94,6 +98,11 @@ const { data: items, execute: loadItems, status } = await useFetch<StashItem[]>(
   immediate: !!session.value?.authed,
 });
 const loading = computed(() => status.value === "pending");
+// After the page is up: the cost report is slower than the cards, and null without an admin key
+const { data: costs, execute: loadCosts } = useFetch<{ month: number; last: number } | null>("/api/stash/costs", {
+  server: false,
+  immediate: !!session.value?.authed,
+});
 
 // Each card without a stored translation is translated on its own and switches over as soon as it's done.
 // shortcut: all at once, which a stash of dozens of new cards could run into Claude's rate limit with; failed ones stay English until the next visit
@@ -137,12 +146,14 @@ const signIn = () =>
     await refreshSession();
     await loadItems();
     translateMissing();
+    loadCosts();
   });
 
 const signOut = () =>
   run(async () => {
     await $fetch("/api/stash/logout", { method: "POST" });
     items.value = [];
+    costs.value = null;
     await refreshSession();
   });
 
