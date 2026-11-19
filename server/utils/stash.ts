@@ -53,6 +53,7 @@ export const stashEnv = {
     get supabaseUrl() { return process.env.DB_SUPABASE_URL ?? ""; },
     get supabaseKey() { return process.env.DB_SUPABASE_SERVICE_ROLE_KEY ?? ""; },
     get resendApiKey() { return process.env.RESEND_API_KEY ?? ""; },
+    get anthropicAdminKey() { return process.env.ANTHROPIC_ADMIN_KEY ?? ""; },
     siteUrl: "https://borysbabas.dev",
 };
 

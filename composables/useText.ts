@@ -20,6 +20,13 @@ export function useFormatDate() {
         new Date(iso).toLocaleDateString(LANG_TAGS[locale.value as Locale] ?? "en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
+/** Dollars the way the current language writes them, e.g. "$4.12" or "4,12 $". */
+export function useFormatUsd() {
+    const { locale } = useI18n();
+    return (usd: number) =>
+        usd.toLocaleString(LANG_TAGS[locale.value as Locale] ?? "en-GB", { style: "currency", currency: "USD", currencyDisplay: "narrowSymbol" });
+}
+
 /** The current language's wording for an error from the stash API, which sends a code rather than a sentence. */
 export function useStashError() {
     const text = useText();
