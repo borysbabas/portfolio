@@ -54,7 +54,7 @@
         <ol id="list" :hidden="view !== 'list'" class="list">
           <li v-for="(p, i) in projects" :key="p.repo" :data-for="i" class="row" data-hide-cursor>
             <a :href="p.site || p.repo">
-              <span class="n">{{ num(i) }}</span><span class="t">{{ p.title }}</span><span class="k">{{ t.work.kinds[p.kind] }}</span><span aria-hidden="true" class="arrow">→</span>
+              <span class="n">{{ num(i) }}</span><span class="t">{{ p.title }}</span><span class="k">{{ t.work.kinds[p.kind] }}</span><span class="to">{{ t.work.dest[p.dest] }} <span aria-hidden="true">↗</span></span>
             </a>
           </li>
         </ol>
@@ -71,12 +71,12 @@
               <p>{{ p.text }}</p>
               <div class="tags"><span v-for="t in p.tags" :key="t">{{ t }}</span></div>
               <div class="links-row">
-                <a v-if="p.site" :href="p.site" class="more">{{ t.work.visitSite }} <span aria-hidden="true">→</span></a>
-                <a :href="p.repo" class="more">GitHub <span aria-hidden="true">→</span></a>
+                <a v-if="p.site" :href="p.site" class="more">{{ t.work.dest[p.dest] }} <span aria-hidden="true">↗</span></a>
+                <a :href="p.repo" class="more">{{ t.work.dest.github }} <span aria-hidden="true">↗</span></a>
               </div>
             </div>
             <!-- Same destination as the links beside it, so it stays out of the tab order and the accessibility tree -->
-            <a v-if="p.image" :href="p.site || p.repo" aria-hidden="true" class="media" data-hide-cursor tabindex="-1">
+            <a v-if="p.image" :href="p.site || p.repo" :data-dest="t.work.dest[p.dest]" aria-hidden="true" class="media" data-hide-cursor tabindex="-1">
               <img :src="p.image" alt="" decoding="async" loading="lazy" />
             </a>
           </article>
@@ -194,7 +194,7 @@
       </footer>
     </div>
 
-    <div ref="pillEl" aria-hidden="true" class="cursor-pill"><span class="in">{{ t.work.viewProject }}</span></div>
+    <div ref="pillEl" aria-hidden="true" class="cursor-pill"><span class="in">{{ pillLabel }} <span aria-hidden="true">↗</span></span></div>
     <div ref="previewEl" aria-hidden="true" class="preview"><div ref="previewIn" class="in"></div></div>
     <SiteCursor />
     <SpeedInsights />
@@ -251,6 +251,8 @@ const projects = computed(() =>
       image: r.thumbnail,
       site: r.homepage || "",
       repo: r.html_url,
+      // Where a click goes: a client's live site, a demo of my own or school work, or else the code
+      dest: (r.homepage ? (r.topics.includes("client-website") ? "site" : "demo") : "github") as "site" | "demo" | "github",
     }))
     // Projects with a README image lead; sort is stable, so each group keeps GitHub's last-updated order
     .sort((a, b) => Number(!a.image) - Number(!b.image)),
@@ -306,6 +308,8 @@ const liveEl = ref<HTMLElement>();
 const pillEl = ref<HTMLElement>();
 const previewEl = ref<HTMLElement>();
 const previewIn = ref<HTMLElement>();
+// The cursor pill over a project image says where that image links to
+const pillLabel = ref("");
 
 // Stack or list view for the work section
 const views = ["stack", "list"] as const;
@@ -605,7 +609,9 @@ onMounted(() => {
     }, { passive: true, signal });
     document.addEventListener("pointerover", (e) => {
       const el = e.target as Element;
-      pill.classList.toggle("show", !!el.closest?.("#stack .media"));
+      const media = el.closest?.<HTMLElement>("#stack .media");
+      if (media) pillLabel.value = media.dataset.dest ?? "";
+      pill.classList.toggle("show", !!media);
       const row = el.closest?.<HTMLElement>(".row");
       const src = row && cards[Number(row.dataset.for)]?.querySelector(".media");
       if (src && previewInner.dataset.for !== row.dataset.for) {
