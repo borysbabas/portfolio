@@ -131,7 +131,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-o
 .card .links-row { display: flex; flex-wrap: wrap; gap: 0 1.5rem; }
 
 /* View switch and list view */
-.seg { display: inline-flex; padding: 3px; gap: 2px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+/* Equal widths, so the dark pill keeps its size whichever view is on, in every language */
+.seg { flex: none; display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; padding: 3px; gap: 2px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
 .seg button {
   min-height: 40px; padding: 0 1rem; border: 0; border-radius: 999px; background: transparent; color: var(--muted);
   font: 500 0.875rem var(--body); cursor: pointer; transition: background-color 150ms ease, color 150ms ease;
