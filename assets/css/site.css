@@ -110,8 +110,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-o
   display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(1.5rem, 3vw, 3rem);
   padding: clamp(1.25rem, 2.6vw, 2.25rem);
   background: var(--surface); border: 1px solid var(--line); border-radius: 22px;
+  transform-origin: 50% 0; isolation: isolate;
+}
+/* The shadow gets its own layer so it can fade once the next card covers this one. Left on every
+   card, the shadows of the cards stuck underneath piled up into a grey band down the sides. */
+.card::after {
+  content: ""; position: absolute; inset: -1px; z-index: -1; border-radius: inherit; pointer-events: none;
   box-shadow: 0 30px 60px -40px rgba(0, 0, 0, 0.35);
-  transform-origin: 50% 0;
 }
 .card-text { display: flex; flex-direction: column; gap: 0.9rem; min-width: 0; }
 .card-text .num { align-self: flex-start; font-family: var(--mono); font-size: 0.75rem; color: #111111; background: var(--red); padding: 0.25rem 0.6rem; border-radius: 999px; }
@@ -360,6 +365,12 @@ html.loading { overflow: hidden; }
 
 /* Motion: scroll-driven, only where the browser supports it */
 @supports (animation-timeline: scroll()) {
+  /* Each card's shadow fades as the next card slides in, on the same timeline as the sink, so only the
+     top card casts one. Opacity alone isn't motion, so this runs with reduced motion too. */
+  .card::after { animation: shade linear both; animation-timeline: inherit; animation-range: entry 0% entry 100%; }
+  .card:last-child::after { animation: none; }
+  @keyframes shade { to { opacity: 0; } }
+
   @media (prefers-reduced-motion: no-preference) {
     .name .l1 { animation: split-left linear both; animation-timeline: scroll(root); animation-range: 0 85vh; }
     .name .l2 { animation: split-right linear both; animation-timeline: scroll(root); animation-range: 0 85vh; }
@@ -399,6 +410,10 @@ html.loading { overflow: hidden; }
 
     @keyframes up { from { opacity: 0; transform: translateY(32px); } }
   }
+}
+/* Without scroll timelines nothing can tell which card is on top, so the cards go without shadows */
+@supports not (animation-timeline: scroll()) {
+  .card::after { content: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .strip { height: auto; }
