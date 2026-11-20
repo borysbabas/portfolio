@@ -88,8 +88,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-o
 .hero-foot .hw { display: inline-block; overflow: clip; vertical-align: top; padding-bottom: 0.12em; margin-bottom: -0.12em; }
 .hero-foot .hw > span { display: inline-block; }
 .hero-foot p { margin: 0; max-width: 34ch; font-size: 1.1875rem; line-height: 1.5; text-wrap: balance; }
-.scroll-cue { display: inline-flex; align-items: center; gap: 0.6rem; }
-.scroll-cue::after { content: ""; width: 1px; height: 2.5rem; background: var(--muted); }
 
 /* Statement */
 .statement { padding: clamp(5rem, 14vh, 9rem) 0; }
@@ -348,10 +346,8 @@ html.loading { overflow: hidden; }
   .ready .nav ul, .ready .theme-btn { animation: fade 700ms var(--ease-out) both; animation-delay: 350ms; }
   .ready .hero .mono { animation: fade 800ms var(--ease-out) both; animation-delay: 450ms; }
 
-  .ready .scroll-cue::after { animation: grow-down 900ms var(--ease-out) both; animation-delay: 900ms; transform-origin: 50% 0; }
   @keyframes rise { from { transform: translateY(105%); } to { transform: translateY(0); } }
   @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-  @keyframes grow-down { from { transform: scaleY(0); } }
 
   /* Everything else plays in once as it comes into view */
   .rv [data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity 700ms var(--ease-out), transform 900ms var(--ease-out); transition-delay: calc(var(--d, 0) * 80ms); }

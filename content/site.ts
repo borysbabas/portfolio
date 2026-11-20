@@ -25,7 +25,6 @@ const en = {
     home: {
         heroTag: "Junior AI Developer · Amsterdam",
         heroLine: "I build websites, web apps and AI features.",
-        scroll: "Scroll",
         statement:
             "By day I work on Kieskeurig.nl at Reshift. The rest of the time I study Software Engineering at the HvA and work on side projects, mostly for the web.",
         work: {
@@ -217,7 +216,6 @@ const nl: SiteText = {
     home: {
         heroTag: "Junior AI Developer · Amsterdam",
         heroLine: "Ik bouw websites, webapps en AI-functies.",
-        scroll: "Scroll",
         statement:
             "Overdag werk ik bij Reshift aan Kieskeurig.nl. De rest van de tijd studeer ik Software Engineering aan de HvA en werk ik aan eigen projecten, vooral voor het web.",
         work: {
@@ -407,7 +405,6 @@ const pl: SiteText = {
     home: {
         heroTag: "Junior AI Developer · Amsterdam",
         heroLine: "Tworzę strony internetowe, aplikacje webowe i funkcje AI.",
-        scroll: "Przewiń",
         statement:
             "W ciągu dnia pracuję w Reshift nad Kieskeurig.nl. Resztę czasu studiuję Software Engineering na HvA i robię własne projekty, głównie webowe.",
         work: {

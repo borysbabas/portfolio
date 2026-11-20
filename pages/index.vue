@@ -21,7 +21,6 @@
             <span class="sr-only">{{ heroLine }}</span>
             <template v-for="(w, i) in heroWords" :key="i"><span aria-hidden="true" class="hw"><span :style="{ '--wi': i }">{{ w }}</span></span>{{ i < heroWords.length - 1 ? " " : "" }}</template>
           </p>
-          <span class="mono scroll-cue">{{ t.scroll }}</span>
         </div>
       </section>
 
